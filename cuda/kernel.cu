@@ -36,11 +36,14 @@ int main(int argc, int argv[])
 	cudaMemcpy(dev_a, a, arraySize * sizeof(unsigned int), cudaMemcpyHostToDevice);
 	transformKernel << <2048,128>> > (dev_a, 9, dev_transformed, arraySize);
 	cudaFree(dev_a);
+	delete[]a;
 
 	float * transformed_res = new float[arraySize];
 	expTransformKernel << <2048, 128 >> > (dev_transformed, 2, arraySize);
 	cudaMemcpy(transformed_res, dev_transformed, arraySize * sizeof(float), cudaMemcpyDeviceToHost);
-	print(transformed_res, arraySize);
+	//print(transformed_res, arraySize);
+	cudaFree(dev_transformed);
+	delete[]transformed_res;
 	system("pause");
     return 0;
 }
