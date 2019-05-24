@@ -7,10 +7,11 @@
 
 namespace ns3 {
 
-MyUdpEchoServerHelper::MyUdpEchoServerHelper (uint16_t port)
+MyUdpEchoServerHelper::MyUdpEchoServerHelper (uint16_t port, Address routerAddress)
 {
   m_factory.SetTypeId (MyUdpEchoServer::GetTypeId ());
   SetAttribute ("Port", UintegerValue (port));
+  m_routerAddress = routerAddress;
 }
 
 void 
@@ -49,7 +50,8 @@ MyUdpEchoServerHelper::Install (NodeContainer c) const
 Ptr<Application>
 MyUdpEchoServerHelper::InstallPriv (Ptr<Node> node) const
 {
-  Ptr<Application> app = m_factory.Create<MyUdpEchoServer> ();
+  Ptr<MyUdpEchoServer> app = m_factory.Create<MyUdpEchoServer> ();
+  app->SetRouterAddress(m_routerAddress);
   node->AddApplication (app);
 
   return app;

@@ -78,15 +78,15 @@ int main(int argc, char** argv)
 	Ipv4InterfaceContainer iGtoRouter = ipv4.Assign(dcGtoRouter);
 
 
-	MyUdpEchoServerHelper serverHelper(9);
+	MyUdpEchoServerHelper serverHelper(9, iGtoRouter.GetAddress(1));
 
 	ApplicationContainer serverApp = serverHelper.Install(ncGtoServer.Get(1));
 	serverApp.Start(Seconds(1.0));
 	serverApp.Stop(Seconds(10.0));
 
 	UdpEchoClientHelper clientHelper(iGtoServer.GetAddress(1), 9);
-	clientHelper.SetAttribute ("MaxPackets", UintegerValue (1));
-	clientHelper.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
+	clientHelper.SetAttribute ("MaxPackets", UintegerValue (100));
+	clientHelper.SetAttribute ("Interval", TimeValue (Seconds (0.1)));
 	clientHelper.SetAttribute ("PacketSize", UintegerValue (1024));
 
 	ApplicationContainer clientApp = clientHelper.Install(ncDtoG.Get(0));

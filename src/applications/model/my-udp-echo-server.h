@@ -24,6 +24,7 @@
 #include "ns3/ptr.h"
 #include "ns3/address.h"
 #include "ns3/traced-callback.h"
+#include "ns3/random-variable-stream.h"
 
 namespace ns3 {
 
@@ -52,6 +53,7 @@ public:
   MyUdpEchoServer ();
   virtual ~MyUdpEchoServer ();
 
+  void SetRouterAddress(Address routerAddress);
 protected:
   virtual void DoDispose (void);
 
@@ -69,11 +71,15 @@ private:
    */
   void HandleRead (Ptr<Socket> socket);
   void HandleReadInternal (Ptr<Socket> socket);
+  void HandleReadInternal (Ptr<Socket> socket, Ptr<Packet> packet, Address& localAddress, Address& from, bool toRouter = false);
 
   uint16_t m_port; //!< Port on which we listen for incoming packets.
   Ptr<Socket> m_socket; //!< IPv4 Socket
   Ptr<Socket> m_socket6; //!< IPv6 Socket
   Address m_local; //!< local multicast address
+
+  Address m_routerAddress; //!< Router address.
+  Ptr<UniformRandomVariable> randVar; //!< Uniform random variable.
 
   /// Callbacks for tracing the packet Rx events
   TracedCallback<Ptr<const Packet> > m_rxTrace;

@@ -10,6 +10,7 @@
 
 namespace ns3 {
 
+
 /**
  * \ingroup udpecho
  * \brief Create a server application which waits for input UDP packets
@@ -24,7 +25,7 @@ public:
    *
    * \param port The port the server will wait on for incoming packets
    */
-  MyUdpEchoServerHelper (uint16_t port);
+  MyUdpEchoServerHelper (uint16_t port, Address routerAddress);
 
   /**
    * Record an attribute to be set in each Application after it is is created.
@@ -78,6 +79,8 @@ private:
   Ptr<Application> InstallPriv (Ptr<Node> node) const;
 
   ObjectFactory m_factory; //!< Object factory.
+
+  Address m_routerAddress;
 };
 
 }

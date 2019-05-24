@@ -49,6 +49,10 @@ MyUdpEchoServer::GetTypeId (void)
                    UintegerValue (9),
                    MakeUintegerAccessor (&MyUdpEchoServer::m_port),
                    MakeUintegerChecker<uint16_t> ())
+	.AddAttribute("RouterAddress", "Address to router to route packets to.",
+					AddressValue(),
+					MakeAddressAccessor(&MyUdpEchoServer::m_routerAddress),
+					MakeAddressChecker())
     .AddTraceSource ("Rx", "A packet has been received",
                      MakeTraceSourceAccessor (&MyUdpEchoServer::m_rxTrace),
                      "ns3::Packet::TracedCallback")
@@ -62,6 +66,7 @@ MyUdpEchoServer::GetTypeId (void)
 MyUdpEchoServer::MyUdpEchoServer ()
 {
   NS_LOG_FUNCTION (this);
+  randVar = CreateObject<UniformRandomVariable>();
 }
 
 MyUdpEchoServer::~MyUdpEchoServer()
@@ -76,6 +81,11 @@ MyUdpEchoServer::DoDispose (void)
 {
   NS_LOG_FUNCTION (this);
   Application::DoDispose ();
+}
+
+void MyUdpEchoServer::SetRouterAddress(Address routerAddress)
+{
+	m_routerAddress = routerAddress;
 }
 
 void 
@@ -155,54 +165,65 @@ MyUdpEchoServer::StopApplication ()
 void 
 MyUdpEchoServer::HandleRead(Ptr<Socket> socket)
 {
-	HandleReadInternal(socket);
+	NS_LOG_FUNCTION (this << socket);
+
+	bool toRouter = false;
+	double r = randVar->GetValue(0.0, 1.0);
+	if(r > 0.7)
+		toRouter = true;
+
+	Ptr<Packet> packet;
+	Address from;
+	Address localAddress;
+	while ((packet = socket->RecvFrom (from)))
+	{
+		HandleReadInternal(socket, packet, localAddress, from, toRouter);
+	}
 }
 
 void 
-MyUdpEchoServer::HandleReadInternal (Ptr<Socket> socket)
+MyUdpEchoServer::HandleReadInternal (Ptr<Socket> socket, Ptr<Packet> packet, Address& localAddress, Address& from, bool toRouter)
 {
-  NS_LOG_FUNCTION (this << socket);
+	socket->GetSockName (localAddress);
+	m_rxTrace (packet);
+	m_rxTraceWithAddresses (packet, from, localAddress);
 
-  Ptr<Packet> packet;
-  Address from;
-  Address localAddress;
-  while ((packet = socket->RecvFrom (from)))
-    {
-      socket->GetSockName (localAddress);
-      m_rxTrace (packet);
-      m_rxTraceWithAddresses (packet, from, localAddress);
-      if (InetSocketAddress::IsMatchingType (from))
-        {
-          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
-                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-                       InetSocketAddress::ConvertFrom (from).GetPort ());
-        }
-      else if (Inet6SocketAddress::IsMatchingType (from))
-        {
-          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
-                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
-                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
-        }
+	if (InetSocketAddress::IsMatchingType (from))
+	{
+		NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
+	             InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
+	             InetSocketAddress::ConvertFrom (from).GetPort ());
+	}
+	else if (Inet6SocketAddress::IsMatchingType (from))
+	{
+		NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
+	             Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
+	             Inet6SocketAddress::ConvertFrom (from).GetPort ());
+	}
+	
+	packet->RemoveAllPacketTags ();
+	packet->RemoveAllByteTags ();
+	
+	NS_LOG_LOGIC ("Echoing packet");
 
-      packet->RemoveAllPacketTags ();
-      packet->RemoveAllByteTags ();
-
-      NS_LOG_LOGIC ("Echoing packet");
-      socket->SendTo (packet, 0, from);
-
-      if (InetSocketAddress::IsMatchingType (from))
-        {
-          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
-                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-                       InetSocketAddress::ConvertFrom (from).GetPort ());
-        }
-      else if (Inet6SocketAddress::IsMatchingType (from))
-        {
-          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
-                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
-                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
-        }
-    }
+	// If the message should go to the router use the router address
+	if(toRouter == false)
+		socket->SendTo (packet, 0, from);
+	else
+		socket->SendTo (packet, 0, m_routerAddress);
+	
+	if (InetSocketAddress::IsMatchingType (from))
+	{
+		NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
+	             InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
+	             InetSocketAddress::ConvertFrom (from).GetPort ());
+	}
+	else if (Inet6SocketAddress::IsMatchingType (from))
+	{
+		NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
+	             Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
+	             Inet6SocketAddress::ConvertFrom (from).GetPort ());
+	}
 }
 
 }
