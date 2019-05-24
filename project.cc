@@ -1,4 +1,4 @@
-
+#include <iostream>
 
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
@@ -15,9 +15,11 @@ int main(int argc, char** argv)
 	// A B C D E F G Server Router
 	// 0 1 2 3 4 5 6 7      8
 	
+	LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO);
+	LogComponentEnable("MyUdpEchoServerApplication", LOG_LEVEL_INFO);
 
 	NodeContainer container;
-	container.Create(8);
+	container.Create(9);
 
 	NodeContainer ncAtoE = NodeContainer(container.Get(0), container.Get(4));
 	NodeContainer ncEtoG = NodeContainer(container.Get(4), container.Get(6));
@@ -30,18 +32,18 @@ int main(int argc, char** argv)
 
 	PointToPointHelper p2p;
 
-	p2p.SetDeviceAttribute("DataRate", StringValue("5Mps"));
+	p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
 	NetDeviceContainer dcAtoE = p2p.Install(ncAtoE);
 	NetDeviceContainer dcEtoG = p2p.Install(ncEtoG);
 	NetDeviceContainer dcBtoF = p2p.Install(ncBtoF);
 	NetDeviceContainer dcCtoF = p2p.Install(ncCtoF);
 	NetDeviceContainer dcDtoG = p2p.Install(ncDtoG);
 
-	p2p.SetDeviceAttribute("DataRate", StringValue("8Mps"));
+	p2p.SetDeviceAttribute("DataRate", StringValue("8Mbps"));
 	NetDeviceContainer dcFtoG = p2p.Install(ncFtoG);
 	NetDeviceContainer dcGtoRouter = p2p.Install(ncGtoRouter);
 
-	p2p.SetDeviceAttribute("DataRate", StringValue("8Mps"));
+	p2p.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
 	NetDeviceContainer dcGtoServer = p2p.Install(ncGtoServer);
 
 
@@ -49,25 +51,53 @@ int main(int argc, char** argv)
 	internet.Install(container);
 
 
-	//NS_LOG_INFO("ASSIGN IP Adresses");
 	Ipv4AddressHelper ipv4;
+
 	ipv4.SetBase("10.10.0.0", "255.255.255.0");
-	ipv4.Assign(dcAtoE);
+	Ipv4InterfaceContainer iAtoE = ipv4.Assign(dcAtoE);
+
 	ipv4.SetBase("10.10.1.0", "255.255.255.0");
-	ipv4.Assign(dcEtoG);
+	Ipv4InterfaceContainer iEtoG = ipv4.Assign(dcEtoG);
+
 	ipv4.SetBase("10.10.2.0", "255.255.255.0");
-	ipv4.Assign(dcBtoF);
+	Ipv4InterfaceContainer iBtoF = ipv4.Assign(dcBtoF);
+
 	ipv4.SetBase("10.10.3.0", "255.255.255.0");
-	ipv4.Assign(dcCtoF);
+	Ipv4InterfaceContainer iCtoF = ipv4.Assign(dcCtoF);
+
 	ipv4.SetBase("10.10.4.0", "255.255.255.0");
-	ipv4.Assign(dcDtoG);
+	Ipv4InterfaceContainer iDtoG = ipv4.Assign(dcDtoG);
+
 	ipv4.SetBase("10.10.5.0", "255.255.255.0");
-	ipv4.Assign(dcFtoG);
+	Ipv4InterfaceContainer iFtoG = ipv4.Assign(dcFtoG);
+
 	ipv4.SetBase("10.10.6.0", "255.255.255.0");
-	ipv4.Assign(dcGtoServer);
+	Ipv4InterfaceContainer iGtoServer = ipv4.Assign(dcGtoServer);
+
 	ipv4.SetBase("10.10.7.0", "255.255.255.0");
-	ipv4.Assign(dcGtoRouter);
+	Ipv4InterfaceContainer iGtoRouter = ipv4.Assign(dcGtoRouter);
+
+
+	MyUdpEchoServerHelper serverHelper(9);
+
+	ApplicationContainer serverApp = serverHelper.Install(ncGtoServer.Get(1));
+	serverApp.Start(Seconds(1.0));
+	serverApp.Stop(Seconds(10.0));
+
+	UdpEchoClientHelper clientHelper(iGtoServer.GetAddress(1), 9);
+	clientHelper.SetAttribute ("MaxPackets", UintegerValue (1));
+	clientHelper.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
+	clientHelper.SetAttribute ("PacketSize", UintegerValue (1024));
+
+	ApplicationContainer clientApp = clientHelper.Install(ncDtoG.Get(0));
+	clientApp.Start(Seconds(2.0));
+	clientApp.Stop(Seconds(10.0));
+
 	Ipv4GlobalRoutingHelper::PopulateRoutingTables();
+
+
+	Simulator::Run();
+	Simulator::Destroy();
 
 	return 0;
 }
