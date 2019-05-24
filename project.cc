@@ -45,28 +45,28 @@ int main(int argc, char** argv)
 	NetDeviceContainer dcGtoServer = p2p.Install(ncGtoServer);
 
 
+	InternetStackHelper internet;
+	internet.Install(container);
 
 
-	Ptr<ExponentialRandomVariable> x = CreateObject<ExponentialRandomVariable> ();
-	x->SetAttribute ("Mean", DoubleValue (0.5));
-
-
-	NS_LOG_INFO("ASSIGN IP Adresses");
+	//NS_LOG_INFO("ASSIGN IP Adresses");
 	Ipv4AddressHelper ipv4;
 	ipv4.SetBase("10.10.0.0", "255.255.255.0");
-	ipv4.Assign();
+	ipv4.Assign(dcAtoE);
 	ipv4.SetBase("10.10.1.0", "255.255.255.0");
-	ipv4.Assign();
+	ipv4.Assign(dcEtoG);
 	ipv4.SetBase("10.10.2.0", "255.255.255.0");
-	ipv4.Assign();
+	ipv4.Assign(dcBtoF);
 	ipv4.SetBase("10.10.3.0", "255.255.255.0");
-	ipv4.Assign();
+	ipv4.Assign(dcCtoF);
 	ipv4.SetBase("10.10.4.0", "255.255.255.0");
-	ipv4.Assign();
+	ipv4.Assign(dcDtoG);
 	ipv4.SetBase("10.10.5.0", "255.255.255.0");
-	ipv4.Assign();
+	ipv4.Assign(dcFtoG);
 	ipv4.SetBase("10.10.6.0", "255.255.255.0");
-	ipv4.Assign();
+	ipv4.Assign(dcGtoServer);
+	ipv4.SetBase("10.10.7.0", "255.255.255.0");
+	ipv4.Assign(dcGtoRouter);
 	Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
 	return 0;
