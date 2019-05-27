@@ -1,1 +1,2 @@
-cp -i "./wscript" "../../src/applications/wscript"
+#!/bin/bash
+cp -i "./code/wscript" "../../src/applications/wscript"
