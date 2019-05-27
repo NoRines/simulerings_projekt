@@ -1,0 +1,1 @@
+cp -i "./wscript" "../../src/applications/wscript"
