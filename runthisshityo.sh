@@ -1,2 +1,2 @@
 #!/bin/bash
-../../waf --run="scratch/project/project"
+../../waf --run="project"
