@@ -191,8 +191,8 @@ MyUdpEchoServer::HandleReadInternal (Ptr<Socket> socket, Ptr<Packet> packet, Add
 	if (InetSocketAddress::IsMatchingType (from))
 	{
 		NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
-	             InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-	             InetSocketAddress::ConvertFrom (from).GetPort ());
+				 InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
+				 InetSocketAddress::ConvertFrom (from).GetPort ());
 	}
 	else if (Inet6SocketAddress::IsMatchingType (from))
 	{
@@ -214,9 +214,14 @@ MyUdpEchoServer::HandleReadInternal (Ptr<Socket> socket, Ptr<Packet> packet, Add
 	
 	if (InetSocketAddress::IsMatchingType (from))
 	{
-		NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
-	             InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-	             InetSocketAddress::ConvertFrom (from).GetPort ());
+		if(toRouter == false)
+			NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
+					 InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
+					 InetSocketAddress::ConvertFrom (from).GetPort ());
+		else
+			NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
+					 InetSocketAddress::ConvertFrom (m_routerAddress).GetIpv4 () << " port " <<
+					 InetSocketAddress::ConvertFrom (m_routerAddress).GetPort ());
 	}
 	else if (Inet6SocketAddress::IsMatchingType (from))
 	{
