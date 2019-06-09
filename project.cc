@@ -100,9 +100,6 @@ int main(int argc, char** argv)
 	ApplicationContainer clientAppAE = clientHelper.Install(ncAtoE.Get(0));
 	clientAppAE.Start(Seconds(appstarttime));
 	clientAppAE.Stop(Seconds(stoptime));
-	ApplicationContainer clientAppEG = clientHelper.Install(ncEtoG.Get(0));
-	clientAppEG.Start(Seconds(appstarttime));
-	clientAppEG.Stop(Seconds(stoptime));
 	ApplicationContainer clientAppBF = clientHelper.Install(ncBtoF.Get(0));
 	clientAppBF.Start(Seconds(appstarttime));
 	clientAppBF.Stop(Seconds(stoptime));
@@ -112,10 +109,6 @@ int main(int argc, char** argv)
 	ApplicationContainer clientAppDG = clientHelper.Install(ncDtoG.Get(0));
 	clientAppDG.Start(Seconds(appstarttime));
 	clientAppDG.Stop(Seconds(stoptime));
-	ApplicationContainer clientAppFG = clientHelper.Install(ncFtoG.Get(0));
-	clientAppFG.Start(Seconds(appstarttime));
-	clientAppFG.Stop(Seconds(stoptime));
-
 	Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
 	p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
