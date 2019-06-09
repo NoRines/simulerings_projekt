@@ -79,29 +79,40 @@ int main(int argc, char** argv)
 
 
 	MyUdpEchoServerHelper serverHelper(9, InetSocketAddress(iGtoRouter.GetAddress(1), 300));
-
+	double starttime = 1.0;
+	double stoptime = 100.0;
 	ApplicationContainer serverApp = serverHelper.Install(ncGtoServer.Get(1));
-	serverApp.Start(Seconds(1.0));
-	serverApp.Stop(Seconds(10.0));
+	serverApp.Start(Seconds(starttime));
+	serverApp.Stop(Seconds(stoptime));
 
 	UdpEchoClientHelper clientHelper(iGtoServer.GetAddress(1), 9);
-	clientHelper.SetAttribute ("MaxPackets", UintegerValue (100));
+	clientHelper.SetAttribute ("MaxPackets", UintegerValue (100000000));
 	clientHelper.SetAttribute ("Interval", TimeValue (Seconds (0.1)));
 	clientHelper.SetAttribute ("PacketSize", UintegerValue (1024));
 
 	PacketSinkHelper packetSinkHelper("ns3::UdpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), 300));
 	ApplicationContainer packetSinkApp = packetSinkHelper.Install(ncGtoRouter.Get(1));
 	packetSinkApp.Start(Seconds(1.0));
-	packetSinkApp.Stop(Seconds(10.0));
+	packetSinkApp.Stop(Seconds(100.0));
 
-	ApplicationContainer clientApp = clientHelper.Install(ncDtoG.Get(0));
-	clientApp.Start(Seconds(2.0));
-	clientApp.Stop(Seconds(10.0));
 
+	double appstarttime = 2.0;
+	ApplicationContainer clientAppAE = clientHelper.Install(ncAtoE.Get(0));
+	clientAppAE.Start(Seconds(appstarttime));
+	clientAppAE.Stop(Seconds(stoptime));
+	ApplicationContainer clientAppBF = clientHelper.Install(ncBtoF.Get(0));
+	clientAppBF.Start(Seconds(appstarttime));
+	clientAppBF.Stop(Seconds(stoptime));
+	ApplicationContainer clientAppCF = clientHelper.Install(ncCtoF.Get(0));
+	clientAppCF.Start(Seconds(appstarttime));
+	clientAppCF.Stop(Seconds(stoptime));
+	ApplicationContainer clientAppDG = clientHelper.Install(ncDtoG.Get(0));
+	clientAppDG.Start(Seconds(appstarttime));
+	clientAppDG.Stop(Seconds(stoptime));
 	Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
 	p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
-
+	p2p.EnablePcap("proj_server", dcGtoServer.Get(1), true);
 	Simulator::Run();
 	Simulator::Destroy();
 
