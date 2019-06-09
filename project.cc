@@ -5,10 +5,37 @@
 #include "ns3/internet-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
+#include "ns3/traffic-control-module.h"
+
 
 #include "lcg.h"
 
 using namespace ns3;
+
+
+void TcPacketsInQueue (QueueDiscContainer qdiscs, Ptr<OutputStreamWrapper> stream)
+{
+	//Get current queue size value and save to file.
+	*stream->GetStream () << Simulator::Now().GetSeconds();
+	for(std::size_t i = 0; i < qdiscs.GetN(); i++)
+	{
+		Ptr<QueueDisc> p = qdiscs.Get (i);
+		uint32_t size = p->GetNPackets(); 
+		*stream->GetStream() << "," << size;
+	}
+	*stream->GetStream() << std::endl;
+}
+
+static void GenerateTraffic (Ptr<Socket> socket, Ptr<ExponentialRandomVariable> randomSize,	Ptr<ExponentialRandomVariable> randomTime)
+{
+	uint32_t pktSize = randomSize->GetInteger (); //Get random value for packet size
+	socket->Send (Create<Packet> (pktSize));
+
+	Time pktInterval = Seconds(randomTime->GetValue ()); //Get random value for next packet generation time 
+	Simulator::Schedule (pktInterval, &GenerateTraffic, socket, randomSize, randomTime); //Schedule next packet generation
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -32,6 +59,8 @@ int main(int argc, char** argv)
 
 	PointToPointHelper p2p;
 
+	p2p.SetQueue ("ns3::DropTailQueue", "MaxSize", StringValue ("1p"));
+
 	p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
 	NetDeviceContainer dcAtoE = p2p.Install(ncAtoE);
 	NetDeviceContainer dcEtoG = p2p.Install(ncEtoG);
@@ -46,9 +75,33 @@ int main(int argc, char** argv)
 	p2p.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
 	NetDeviceContainer dcGtoServer = p2p.Install(ncGtoServer);
 
-
 	InternetStackHelper internet;
 	internet.Install(container);
+
+	TrafficControlHelper tch;
+	tch.SetRootQueueDisc("ns3::FifoQueueDisc", "MaxSize", StringValue("1000p"));
+	
+	QueueDiscContainer qdiscs = tch.Install(dcAtoE);
+	qdiscs.Add(tch.Install(dcEtoG));
+	qdiscs.Add(tch.Install(dcBtoF));
+	qdiscs.Add(tch.Install(dcCtoF));
+	qdiscs.Add(tch.Install(dcDtoG));
+	qdiscs.Add(tch.Install(dcFtoG));
+	qdiscs.Add(tch.Install(dcGtoRouter));
+	qdiscs.Add(tch.Install(dcGtoServer));
+
+	AsciiTraceHelper asciiTraceHelper;
+	Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("all_queues.tr");
+
+	*stream->GetStream() << "time," << "AfromE," << "EfromA," << "EfromG," << "GfromE,"
+		<< "BfromF," << "FfromB," << "CfromF," << "FfromC," << "DfromG," << "GfromD,"
+		<< "FfromG," << "GfromF," << "GfromRouter," << "RouterFromG," << "GfromServer," << "ServerFromG" << std::endl;
+
+	for(float t = 1.0f; t < 100.0f; t+= 0.001f)
+	{
+		Simulator::Schedule(Seconds(t), &TcPacketsInQueue, qdiscs, stream);
+	}
+
 
 
 	Ipv4AddressHelper ipv4;
@@ -85,10 +138,6 @@ int main(int argc, char** argv)
 	serverApp.Start(Seconds(starttime));
 	serverApp.Stop(Seconds(stoptime));
 
-	UdpEchoClientHelper clientHelper(iGtoServer.GetAddress(1), 9);
-	clientHelper.SetAttribute ("MaxPackets", UintegerValue (100000000));
-	clientHelper.SetAttribute ("Interval", TimeValue (Seconds (0.1)));
-	clientHelper.SetAttribute ("PacketSize", UintegerValue (1024));
 
 	PacketSinkHelper packetSinkHelper("ns3::UdpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), 300));
 	ApplicationContainer packetSinkApp = packetSinkHelper.Install(ncGtoRouter.Get(1));
@@ -96,23 +145,36 @@ int main(int argc, char** argv)
 	packetSinkApp.Stop(Seconds(100.0));
 
 
-	double appstarttime = 2.0;
-	ApplicationContainer clientAppAE = clientHelper.Install(ncAtoE.Get(0));
-	clientAppAE.Start(Seconds(appstarttime));
-	clientAppAE.Stop(Seconds(stoptime));
-	ApplicationContainer clientAppBF = clientHelper.Install(ncBtoF.Get(0));
-	clientAppBF.Start(Seconds(appstarttime));
-	clientAppBF.Stop(Seconds(stoptime));
-	ApplicationContainer clientAppCF = clientHelper.Install(ncCtoF.Get(0));
-	clientAppCF.Start(Seconds(appstarttime));
-	clientAppCF.Stop(Seconds(stoptime));
-	ApplicationContainer clientAppDG = clientHelper.Install(ncDtoG.Get(0));
-	clientAppDG.Start(Seconds(appstarttime));
-	clientAppDG.Stop(Seconds(stoptime));
+	TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
+
+
+	auto DefThing = [&tid](Ptr<Node> node, Ipv4Address serverAddress, double meanInterTime, double meanSize)
+	{
+		Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
+		sourceA->Connect (InetSocketAddress (serverAddress, 9));
+	
+		double mean = meanInterTime;
+		Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
+		randomTime->SetAttribute ("Mean", DoubleValue (mean));
+	
+		//mean = (5000000.0/(8*100)-30); // (1 000 000 [b/s])/(8 [b/B] * packet service rate [1/s]) - 30 [B (header bytes)]
+		mean = meanSize;
+		Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
+		randomSize->SetAttribute ("Mean", DoubleValue (mean));
+
+		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (1.0), &GenerateTraffic, sourceA, randomSize, randomTime);
+	};
+	
+	DefThing(ncAtoE.Get(0), iGtoServer.GetAddress(1), 0.002, 100);
+	DefThing(ncBtoF.Get(0), iGtoServer.GetAddress(1), 0.002, 100);
+	DefThing(ncCtoF.Get(0), iGtoServer.GetAddress(1), 0.0005, 100);
+	DefThing(ncDtoG.Get(0), iGtoServer.GetAddress(1), 0.001, 100);
+
 	Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
 	p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
 	p2p.EnablePcap("proj_server", dcGtoServer.Get(1), true);
+	Simulator::Stop(Seconds(5));
 	Simulator::Run();
 	Simulator::Destroy();
 
