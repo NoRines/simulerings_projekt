@@ -59,8 +59,8 @@ int main(int argc, char** argv)
 	NodeContainer ncGtoServer = NodeContainer(container.Get(6), container.Get(7));
 	NodeContainer ncGtoRouter = NodeContainer(container.Get(6), container.Get(8));
 	
-	PointToPointHelper p2p;
-	p2p.SetQueue ("ns3::DropTailQueue", "MaxSize", StringValue ("1p"));
+	//PointToPointHelper p2p;
+	//p2p.SetQueue ("ns3::DropTailQueue", "MaxSize", StringValue ("1p"));
 
 	CsmaHelper csma;
   	csma.SetChannelAttribute ("DataRate", StringValue ("5Mbps"));
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 		<< "BfromF," << "FfromB," << "CfromF," << "FfromC," << "DfromG," << "GfromD,"
 		<< "FfromG," << "GfromF," << "GfromRouter," << "RouterFromG," << "GfromServer," << "ServerFromG" << std::endl;
 
-	for(float t = 11.0f; t < simTime; t+=0.0001f)
+	for(float t = 1.0f; t < simTime; t+=0.0001f)
 	{
 		Simulator::Schedule(Seconds(t), &TcPacketsInQueueCSMA, qdiscs, stream);
 	}
@@ -218,10 +218,15 @@ int main(int argc, char** argv)
 
 	//FlowMonitorHelper flowmon;
 	//Ptr<FlowMonitor> monitor = flowmon.InstallAll();
-	p2p.EnablePcapAll("scratch/all_da_packets",true);
-	p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
-	p2p.EnablePcap("proj_server", dcGtoServer.Get(1), true);
-	p2p.EnablePcap("proj_g", dcGtoServer.Get(0), true);
+	//p2p.EnablePcapAll("scratch/all_da_packets",true);
+	//p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
+	//p2p.EnablePcap("proj_server", dcGtoServer.Get(1), true);
+	//p2p.EnablePcap("proj_g", dcGtoServer.Get(0), true);
+	csma.EnablePcapAll("scratch/all_da_packets",true);
+	csma.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
+	csma.EnablePcap("proj_server", dcGtoServer.Get(1), true);
+	csma.EnablePcap("proj_g", dcGtoServer.Get(0), true);
+	csma.EnablePcap("proj_a", dcAtoE.Get(0), true);
 	Simulator::Stop(Seconds(simTime));
 	Simulator::Run();
 

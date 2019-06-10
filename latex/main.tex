@@ -3,6 +3,7 @@
 \usepackage{hyperref}
 \usepackage{mathtools}
 \usepackage{graphicx}
+\usepackage{scrextend}
 
 \title{DT057A Project}
 \author{raho1501 \& majo1412 \& mafl1400}
@@ -12,7 +13,7 @@
 
 \maketitle
 
-\section{Part I: PRNG and Random Variables}
+\section{Part I: PRNG and Random Variables} \label{part1}
 \begin{enumerate}
   \item A LCG random generator was created in a file named "lcg.h" for generating random uniformed numbers. The file can be found in the git repo.
   \item 1000 values were generated and transformed onto the range [0,1] by calling the function "norm\_gen()" in the "lcg.h" header. A bulk function was also created if the 1000 values were in an array, then the GPU accelerated function "transformKernel(*input, mod, output,1000)" was called, which can be found in the header "func.cuh".
@@ -23,7 +24,9 @@
   \item Acording to the lectures we can use inverse cdf to function on the generated uniform random variable to create a random variable following the desired distriobution. For exponential distrobution we can use the function:$$ F^{-1}_x(u)) = \frac{-1}{\beta} * ln(1-u) \implies x \in \exp{(\lambda)} $$
   \item When comparing our implementation with the ns3 implementation we get quite simmilar distributions. However our implementation seems have a bit less variance than the ns3 version.
 \end{enumerate}
-\section{Part II: Mathematical Modelling of a system of Queues}
+
+
+\section{Part II: Mathematical Modelling of a system of Queues} \label{part2}
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{netmap.png}
   \caption{Network topology}
@@ -85,6 +88,52 @@ $$ \frac{1000}{6250 - 1000 } + \frac{2500}{10000 - 2500 } + \frac{4000}{12500 - 
 Which concludes the section with the answers to the questions. The average number of packets are 1.638898 packets and the number of packets per link can be found in equations 1.
 
 
-\section{Part III: Simulations and Results Comparison}
+\section{Part III: Simulations and Results Comparison} \label{part3}
+
+\begin{itemize}
+    \item Run the simulation and measure:
+    \begin{itemize}
+        \item The average number of request packets queued at the link between and the Router (g $\rightarrow$ Server)
+        \begin{addmargin}[1em]{2em}
+        As can be seen in the calculations from section \ref{part2} the average number of packets between node g and the server was about ~0.47 packets.
+        When simulated the results acquired were very different.
+        The average number of packets between node g and the server was about ~0.064 packets which is significantly smaller than the calculated results.
+        We have two theories for the reason for this difference.
+        \textbf{First} the calculations use the Kleinrock independence approximation which may not be a good approximation for the system.
+        This is because the system has quite low traffic while the Kleinrock approximation works better for high traffic systems.
+        We tested halving all the data rates in the system and got results more close to the calculated values.
+        \textbf{Second} the simulation might not take into account the packets that are in service by only counting the packets that are in queue.
+        This might be responsible for part of the error since the Kleinrock approximation calculates the total number of packets in the point to point connection.
+        When measuring the average queue size between g and the router the results are 0.
+        This is probably because the router is able to consume the packet fast enough so that no queue has time to form.
+        \end{addmargin}
+        
+        \item The average queuing delay and the total average delay for the request packets traversing the link f $\rightarrow$ g
+        \begin{addmargin}[1em]{2em}
+        By creating a flow monitor statistical analyser file we calculated the average total delay for f $\rightarrow$ g.
+        By taking the delay sum for the flow by checking the total delay values in the statistical analyser file.
+        $$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number of packets}$$
+        The delay was calculated to be about ~0.123 milliseconds.
+        
+        \end{addmargin}
+    \end{itemize}
+    
+    \item Compare the results you get from the simulation with the one you obtained in Part II.
+    \begin{addmargin}[1em]{2em}
+    I think we did this already.
+    \end{addmargin}
+    
+    \item Measure the delay between A and the Server and between the Server and A.
+    \begin{addmargin}[1em]{2em}
+    A to server: 0.454 milliseconds.
+    Server to A: 0.478 milliseconds.
+    \end{addmargin}
+    
+    \item Replace each P2P link with a bus using CSMA/CD do not change the data rate or delay.
+    \begin{addmargin}[1em]{2em}
+    When replacing all the point to point connections with csma busses with collision detection a very large queue is built from the server to g.
+    \end{addmargin}
+\end{itemize}
 
 \end{document}
+
