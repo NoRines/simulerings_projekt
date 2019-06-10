@@ -13,8 +13,15 @@ numGServer = np.sum(df['GfromServer'] + df['ServerFromG']) / 5.0
 print(numGServer)
 
 
-test = np.sum(df['ServerFromG']) / len(df['ServerFromG'])
-#test = np.sum(df['ServerFromG']) / 5
+test = (np.sum(df['ServerFromG']) / len(df['ServerFromG']))
 
 print(test)
-print(len(df['ServerFromG']))
+
+test = (np.sum(df['RouterFromG']) / len(df['RouterFromG']))
+
+print(test)
+
+
+test = (np.sum(df['GfromF']) / len(df['GfromF']))
+
+print(test)

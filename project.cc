@@ -6,6 +6,7 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/traffic-control-module.h"
+#include "ns3/flow-monitor-module.h"
 
 
 #include "lcg.h"
@@ -174,18 +175,22 @@ int main(int argc, char** argv)
 
 	Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-	//FlowMonitorHelper flowmon;
+	FlowMonitorHelper flowmon;
 	//Ptr<FlowMonitor> monitor = flowmon.InstallAll();
+	Ptr<FlowMonitor> monitor = flowmon.Install(container);
 
 	p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
 	p2p.EnablePcap("proj_server", dcGtoServer.Get(1), true);
-	p2p.EnablePcap("proj_g", dcGtoServer.Get(0), true);
+	p2p.EnablePcap("proj_f", dcFtoG.Get(0), true);
+	p2p.EnablePcap("proj_g", dcFtoG.Get(1), true);
 	Simulator::Stop(Seconds(simTime));
 	Simulator::Run();
 
-	//Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowmon.GetClassifier());
-	//std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats();
+	Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowmon.GetClassifier());
+	std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats();
 
+	std::cout << "F delay: " << stats[6].delaySum << std::endl;
+	std::cout << "G delay: " << stats[7].delaySum << std::endl;
 
 	Simulator::Destroy();
 
