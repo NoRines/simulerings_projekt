@@ -36,6 +36,15 @@ static void GenerateTraffic (Ptr<Socket> socket, Ptr<ExponentialRandomVariable> 
 	Simulator::Schedule (pktInterval, &GenerateTraffic, socket, randomSize, randomTime); //Schedule next packet generation
 }
 
+static void MyGenerateTraffic (Ptr<Socket> socket, lcg::state& randomSize, lcg::state& randomTime, double interarivalTime)
+{
+	uint32_t pktSize = (uint32_t)lcg::exp_transform(norm_gen(randomSize), 70);
+	socket->Send (Create<Packet> (pktSize));
+
+	Time pktInterval = Seconds(lcg::exp_transform(norm_gen(randomTime), interarivalTime));
+	Simulator::Schedule (pktInterval, &MyGenerateTraffic, socket, randomSize, randomTime, interarivalTime); //Schedule next packet generation
+}
+
 
 
 int main(int argc, char** argv)
@@ -155,17 +164,18 @@ int main(int argc, char** argv)
 		Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
 		sourceA->Connect (InetSocketAddress (serverAddress, 9));
 	
-		double mean = meanInterTime;
-		Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
-		randomTime->SetAttribute ("Mean", DoubleValue (mean));
+		//double mean = meanInterTime;
+		//Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
+		//randomTime->SetAttribute ("Mean", DoubleValue (mean));
 	
-		//mean = (bitRate/(8*4800)-30); // (1 000 000 [b/s])/(8 [b/B] * packet service rate [1/s]) - 30 [B (header bytes)]
-		//std::cout << mean << std::endl;
-		mean = meanSize;
-		Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
-		randomSize->SetAttribute ("Mean", DoubleValue (mean));
+		//mean = meanSize;
+		//Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
+		//randomSize->SetAttribute ("Mean", DoubleValue (mean));
+		
+		lcg::state randomSize = {1, 22695477, 1, (unsigned int)(1 << 31)};
+		lcg::state randomTime = {300, 22695477, 1, (unsigned int)(1 << 31)};
 
-		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &GenerateTraffic, sourceA, randomSize, randomTime);
+		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &MyGenerateTraffic, sourceA, randomSize, randomTime, meanInterTime);
 	};
 	
 	DefThing(ncAtoE.Get(0), iGtoServer.GetAddress(1), 0.002, 70);
@@ -186,11 +196,7 @@ int main(int argc, char** argv)
 	Simulator::Stop(Seconds(simTime));
 	Simulator::Run();
 
-	Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowmon.GetClassifier());
-	std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats();
-
-	std::cout << "F delay: " << stats[6].delaySum << std::endl;
-	std::cout << "G delay: " << stats[7].delaySum << std::endl;
+	flowmon.SerializeToXmlFile("flowfilestatscool.xml", false, true);
 
 	Simulator::Destroy();
 
