@@ -112,7 +112,7 @@ Which concludes the section with the answers to the questions. The average numbe
         \begin{addmargin}[1em]{2em}
         By creating a flow monitor statistical analyser file we calculated the average total delay for f $\rightarrow$ g.
         By taking the delay sum for the flow by checking the total delay values in the statistical analyser file.
-        $$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number of packets}$$
+        $$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number\ of\ packets}$$
         The delay was calculated to be about ~0.123 milliseconds.
         
         \end{addmargin}
@@ -131,9 +131,15 @@ Which concludes the section with the answers to the questions. The average numbe
     
     \item Replace each P2P link with a bus using CSMA/CD do not change the data rate or delay.
     \begin{addmargin}[1em]{2em}
-    When replacing all the point to point connections with csma busses with collision detection a very large queue is built from the server to g.
+    When replacing all the point to point connections with CSMA busses with collision detection a very large queue is built from the server to g. This is most likely due to the larger flow of packets going into g from node F, E and D and only one point out to the server. So when the responses from the server is on its way back, they have to share the bus with the input from the three nodes. Because of this there is a huge backlog at node g. 
+    \end{addmargin}
+    
+    \item Run the simulation but this time use the custom PRNG that you implemented in Part I to generate the exponential packet size and the exponential time between packets. Which differences do you observe?
+    \begin{addmargin}[1em]{2em}
+    When we changed to our implementation of the PRNG we got similar result as before but with slightly smaller values. The average queue size in G dropped to about 0.055 on G to server, to 0 on G to router (which is unchanged) and 0.150 on F to G. The delay from F to G was unchanged, the delay from server to A was 0.46ms which is slightly lower than before, and from A to server was 0.48 ms which is slightly more than previously. These are inside the errorbounds so they can be deemed unchanged. 
+    
+    However the overall difference when we change to our prng implementation was negligible and the only thing we noticed was a more predictable pattern in the packet sizes.
     \end{addmargin}
 \end{itemize}
 
 \end{document}
-
