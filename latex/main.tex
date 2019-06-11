@@ -71,26 +71,35 @@
   
   This polar method that NS-3 uses is a faster rejection method than many ordinary rejection methods, given that you can generate uniform random values at a fast rate while not using trigonometric function. 
   \subsection{Comparison of implementations and distributions}
-  \begin{figure}
+  The figures below are the result of the ns3 generation and our generation.
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{ns3uniform.png}
     \caption{NS3 RandomUniformVariable implementation.}
-    \centering
-      \includegraphics[width=\linewidth]{ns3uniform.png}
+    \label{fig:ns3ruv}
   \end{figure}
-  \begin{figure}
+  
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{uniformLCG.png}
     \caption{LCG uniform random variable.}
-    \centering
-      \includegraphics[width=\linewidth]{uniformLCG.png}
+    \label{fig:lcgruv}
   \end{figure}
-  \begin{figure}
-    \caption{NS3 RandomExponentialVariable implementation.}
+\newpage
+  \begin{figure}[h!]
     \centering
       \includegraphics[width=\linewidth]{ns3exponential.png}
+      \caption{NS3 RandomExponentialVariable implementation.}
+      \label{fig:ns3rev}
   \end{figure}
-  \begin{figure}
-    \caption{ITM exponential random variable.}
+  
+  \begin{figure}[h!]
     \centering
       \includegraphics[width=\linewidth]{exponentialITM.png}
+      \caption{ITM exponential random variable.}
+      \label{fig:itmrev}
   \end{figure}
+  which concludes the comparison of the figures.
   \subsection{Conclusions}
 
 \begin{enumerate}
