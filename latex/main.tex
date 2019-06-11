@@ -162,10 +162,52 @@ Which concludes the section with the answers to the questions on part 2. The ave
 \end{itemize}
 
 \subsection{Implementation}
-We decided to use the ns3 discrete event network simulator.
+We decided to use the ns3 discrete event network simulator to implement and test the proposed scenario.
+
 
 
 \subsubsection{Network topology}
+Our network topology consisting of ns3-nodecontainers were interconnected using a point-to
+-point helper. The point-to-point helper was used to set the queue-type for all of the
+nodes in the network and set the type of queue for all of them. The resulting configuration
+for it was five Mbit/s links, two eight Mbit/s links and a ten Mbit/s link where all of
+them had a single-server, drop-tail queue. We assumed a infinite queue so this attribute
+didn't do much. 
+
+Following this we installed a internet-stack-helper to help with the stack, a
+trafic-control-helper to set the queueing discipline and a Ipv4-address-helper to give each
+node an ip. 
+
+Lastly we installed the server- and router-applications where the server was a modified
+udp-echo-server and the router was a packet-sink which would swallow all packets it
+received. 
+
+The topology for the csma version is very similar to the point-to-point version. The only
+difference is that the point-to-point-helper was changed to a csma-helper where it got the
+same bandwidth values and queue types as the previous version. However this change turned
+the channels into half-duplex channels instead of full-duplex as they were previously. This
+is due to that they now share a bus to transfer over and if both sides transmit at the same
+time, the packets will collide and be dropped.
+
+
+\subsubsection{Server implementation}
+To get the desired behaviour where the server only replies to 70\% of messages and 30\% are sent to the router.
+We decided to implement our own version of the UdpEchoServerHelper and UdpEchoServer application.
+The new versions of theses classes were called MyUdpEchoServerHelper and MyUdpEchoServer.
+When implementing the behaviour first all code in UdpEchoServerHelper and UdpEchoServer was copied into MyUdpEchoServerHelper and MyUdpEchoServer respectively.
+We then modified the behaviour by adding the router address as a parameter into the helper class constructor.
+This address was stored in a private member variable called m\_routerAddress.
+This address needed to be sent to the MyUdpEchoServer application that the helper creates.
+So in the private install function of the helper class we use the object factory to create a pointer to a MyUdpEchoServer object then the router address is set in this object by calling a setter function.
+The application is then added to the node that the helper is installing.
+
+The modifications made to the MyUdpEchoServer class is first that two private member variables were added one for the router address called m\_routerAddress and one pointer for the uniform random variable called randVar.
+The router address is set by the helper using a setter function and the random variable is set in the class constructor using the create object function.
+To change the behaviour the only other function that needed modification was HandleRead.
+In this function we first generate a random variable using the uniform random variable.
+Then if the value is lager then 0.7 a bool is set to true.
+This bool variable decides if the message should go to the router or not.
+When the response packet is sent the bool variable is checked and the router address i applied if true and the sender address is applied if false.
 
 \subsubsection{Scheduling}
 
