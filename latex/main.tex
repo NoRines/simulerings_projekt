@@ -8,7 +8,7 @@
 
 \title{DT057A Project}
 \author{raho1501 \& majo1412 \& mafl1400}
-\date{June 2019}s
+\date{May 2019}
 
 \begin{document}
 
@@ -80,7 +80,12 @@
   \caption{Network topology}
   \label{fig:netmap}
 \end{figure}
-By inspecting the figure \ref{fig:netmap} we made a Kleinrock approximation to calculate the average number of packets in the system.
+By inspecting the figure \ref{fig:netmap} we made a Kleinrock approximation to calculate the average number of 
+packets in the system. Kleinrock independence approximation assumes that when you have a dense network of queues
+the effects of packet streams going into each other results in independent packet arrival-rates as the speed a packet traverses a line is only dependent on the availavble bandwidth of that line and how congested it is, then each
+queue can be observed as its own M/M/1 system and be observed isolated from each other. Which simplifies calculations
+for the whole system. However its still important to remember that it is still just an approximation and might not
+represent reality accuratly but there is proof that it is still a very good approximation that is worth doing. \cite{kenyon2002high}
 \begin{table}[h]
 \centering
 \label{Arrivalrates}
@@ -200,3 +205,75 @@ We also considered creating our own version of the UdpEchoClient application but
 
 \subsubsection{Logging method}
 The type of data we wanted to be able to see when logging was the queue lengths for each connection and delay for each flow of data.
+We also used pcap to log the packets for some nodes for debugging purposes.
+
+To log the number of packets that were in each queue we used the simulator to schedule calls to a logging function.
+This function took as parameters the queue container that keeps the status for each queue as well as a file stream.
+The number of packets in each queue was then logged as comma separated values which made it very easy to take the outputted file and do analysis on it using python.
+
+To get information on the delay values of each flow of data we used the ns3 flow monitor tool to output an xml containing all the flow information.
+We could then read that file and see the total delay for all flows.
+This could then be used to calculate the average delay on a specific link.
+
+\subsection{Simulation}
+When simulating the final setup we compared it to the calculated expectations. For the average 
+number of packets between node G and the server was calculated to be around 0.47 packets, 
+however the simulated result was around 0.064 packets which is significantly smaller than the 
+expected calculation deems. 
+
+The average queuing delay and total average delay for the packets traversing the link F to G 
+was aquired by creating a flow-monitor statistical analyser file. From that resulting XML-file 
+we calculated the delay by taking the delaysum for the flow. We used the total delay values for 
+the nodes that is presented just below.
+$$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number\ of\ packets}$$
+Which resulted with the delay from F to G to be about 0.123 milliseconds.  
+When observing the delay between A and the server we got that it was around 0.454 milliseconds 
+and the reversed path (server to A) was around 0.478 milliseconds. 
+
+Later we changed the point-to-point configuration to a CSMA-based one. This had change did not 
+have any significant effect on the data rate or the delay as the differences were negliable.
+However the number of packets in queue at the server to G queue was huge.
+
+Finally we swaped the NS-3 random variables to our implemented versions. When we did this we
+barely noticed any difference. We almost got the same results as before except abit lower.
+The queue size form G to server was now 0.055 and the size was on F to G was now 0.150. 
+The Delay from F to G was unchanged, the delay from the server to A was 0.46 which is slightly 
+lower than before and from A to the server was now 0.48 . These are however within the bounds 
+of deviations so we can say that they are equal.
+
+
+\subsubsection{Evaluation}
+The difference in number of packets between G and the server is of a noticable size. We have 
+two theories around why that is the case.
+
+\textbf{First} the calculations use the Kleinrock independence approximation which may not be 
+a good approximation for the system. This is because the system has quite low traffic while the 
+Kleinrock approximation works better for high traffic systems. We tested halving all the data 
+rates in the system and got results more close to the calculated values.
+
+\textbf{Second} the simulation might not take into account the packets that are in service 
+by only counting the packets that are in queue. This might be responsible for part of the 
+error since the Kleinrock approximation calculates the total number of packets in the point 
+to point connection. When measuring the average queue size between g and the router the 
+results are 0.This is probably because the router is able to consume the packet fast enough 
+so that no queue has time to form.
+
+When we changed to CSMA on busses we got a larger queue at the server to G. This is probably due
+to the fact that we have the combined transmittions from G redirected from D, E and F which are 
+all heading to the server, which the return packets has to fight for space against. And since the
+busses are only half-duplex and can only send in one direction at a time there will be packet 
+collisions on that bus, which adds more and more packets at the server to G backlog for retransmittions.
+This is represented in the image below where the large packet streams are heading towards G and a bunch 
+of slower responses are heading back from the server which they have to fight for space against, which 
+leads to a backlog forming at G for the responses.
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{csmamap.png}
+  \caption{CSMA flow map}
+  \label{fig:csma}
+\end{figure}
+
+\section{Conclusions}
+
+\bibliographystyle{unsrt}
+\bibliography{ref}
+\end{document}
