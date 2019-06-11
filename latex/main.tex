@@ -90,58 +90,6 @@ Which concludes the section with the answers to the questions on part 2. The ave
 
 \section{Part III: Simulations and Results Comparison} \label{part3}
 
-\begin{itemize}
-    \item Run the simulation and measure:
-    \begin{itemize}
-        \item The average number of request packets queued at the link between and the Router (g $\rightarrow$ Server)
-        \begin{addmargin}[1em]{2em}
-        As can be seen in the calculations from section \ref{part2} the average number of packets between node g and the server was about ~0.47 packets.
-        When simulated the results acquired were very different.
-        The average number of packets between node g and the server was about ~0.064 packets which is significantly smaller than the calculated results.
-        We have two theories for the reason for this difference.
-        \textbf{First} the calculations use the Kleinrock independence approximation which may not be a good approximation for the system.
-        This is because the system has quite low traffic while the Kleinrock approximation works better for high traffic systems.
-        We tested halving all the data rates in the system and got results more close to the calculated values.
-        \textbf{Second} the simulation might not take into account the packets that are in service by only counting the packets that are in queue.
-        This might be responsible for part of the error since the Kleinrock approximation calculates the total number of packets in the point to point connection.
-        When measuring the average queue size between g and the router the results are 0.
-        This is probably because the router is able to consume the packet fast enough so that no queue has time to form.
-        \end{addmargin}
-        
-        \item The average queuing delay and the total average delay for the request packets traversing the link f $\rightarrow$ g
-        \begin{addmargin}[1em]{2em}
-        By creating a flow monitor statistical analyser file we calculated the average total delay for f $\rightarrow$ g.
-        By taking the delay sum for the flow by checking the total delay values in the statistical analyser file.
-        $$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number\ of\ packets}$$
-        The delay was calculated to be about ~0.123 milliseconds.
-        
-        \end{addmargin}
-    \end{itemize}
-    
-    \item Compare the results you get from the simulation with the one you obtained in Part II.
-    \begin{addmargin}[1em]{2em}
-    I think we did this already.
-    \end{addmargin}
-    
-    \item Measure the delay between A and the Server and between the Server and A.
-    \begin{addmargin}[1em]{2em}
-    A to server: 0.454 milliseconds.
-    Server to A: 0.478 milliseconds.
-    \end{addmargin}
-    
-    \item Replace each P2P link with a bus using CSMA/CD do not change the data rate or delay.
-    \begin{addmargin}[1em]{2em}
-    When replacing all the point to point connections with CSMA busses with collision detection a very large queue is built from the server to g. This is most likely due to the larger flow of packets going into g from node F, E and D and only one point out to the server. So when the responses from the server is on its way back, they have to share the bus with the input from the three nodes. Because of this there is a huge backlog at node g. 
-    \end{addmargin}
-    
-    \item Run the simulation but this time use the custom PRNG that you implemented in Part I to generate the exponential packet size and the exponential time between packets. Which differences do you observe?
-    \begin{addmargin}[1em]{2em}
-    When we changed to our implementation of the PRNG we got similar result as before but with slightly smaller values. The average queue size in G dropped to about 0.055 on G to server, to 0 on G to router (which is unchanged) and 0.150 on F to G. The delay from F to G was unchanged, the delay from server to A was 0.46ms which is slightly lower than before, and from A to server was 0.48 ms which is slightly more than previously. These are inside the error bounds so they can be deemed unchanged. 
-    
-    However the overall difference when we change to our PRNG implementation was negligible and the only thing we noticed was a more predictable pattern in the packet sizes.
-    \end{addmargin}
-\end{itemize}
-
 \subsection{Implementation}
 We decided to use the ns3 discrete event network simulator to implement and test the proposed scenario.
 
@@ -186,7 +134,7 @@ The modifications made to the MyUdpEchoServer class is first that two private me
 The router address is set by the helper using a setter function and the random variable is set in the class constructor using the create object function.
 To change the behaviour the only other function that needed modification was HandleRead.
 In this function we first generate a random variable using the uniform random variable.
-Then if the value is lager then 0.7 a bool is set to true.
+Then if the value is larger then 0.7 a bool is set to true.
 This bool variable decides if the message should go to the router or not.
 When the response packet is sent the bool variable is checked and the router address i applied if true and the sender address is applied if false.
 
@@ -195,13 +143,63 @@ When the response packet is sent the bool variable is checked and the router add
 \subsubsection{Logging method}
 
 \subsection{Simulation}
+When simulating the final setup we compared it to the calculated expectations. For the average 
+number of packets between node G and the server was calculated to be around 0.47 packets, 
+however the simulated result was around 0.064 packets which is significantly smaller than the 
+expected calculation deems. 
+
+The average queuing delay and total average delay for the packets traversing the link F to G 
+was aquired by creating a flow-monitor statistical analyser file. From that resulting XML-file 
+we calculated the delay by taking the delaysum for the flow. We used the total delay values for 
+the nodes that is presented just below.
+$$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number\ of\ packets}$$
+Which resulted with the delay from F to G to be about 0.123 milliseconds.  
+When observing the delay between A and the server we got that it was around 0.454 milliseconds 
+and the reversed path (server to A) was around 0.478 milliseconds. 
+
+Later we changed the point-to-point configuration to a CSMA-based one. This had change did not 
+have any significant effect on the data rate or the delay as the differences were negliable.
+However the number of packets in queue at the server to G queue was huge.
+
+Finally we swaped the NS-3 random variables to our implemented versions. When we did this we
+barely noticed any difference. We almost got the same results as before except abit lower.
+The queue size form G to server was now 0.055 and the size was on F to G was now 0.150. 
+The Delay from F to G was unchanged, the delay from the server to A was 0.46 which is slightly 
+lower than before and from A to the server was now 0.48 . These are however within the bounds 
+of deviations so we can say that they are equal.
+
 
 \subsubsection{Evaluation}
+The difference in number of packets between G and the server is of a noticable size. We have 
+two theories around why that is the case.
 
-\subsubsection{Comparisons}
+\textbf{First} the calculations use the Kleinrock independence approximation which may not be 
+a good approximation for the system. This is because the system has quite low traffic while the 
+Kleinrock approximation works better for high traffic systems. We tested halving all the data 
+rates in the system and got results more close to the calculated values.
+
+\textbf{Second} the simulation might not take into account the packets that are in service 
+by only counting the packets that are in queue. This might be responsible for part of the 
+error since the Kleinrock approximation calculates the total number of packets in the point 
+to point connection. When measuring the average queue size between g and the router the 
+results are 0.This is probably because the router is able to consume the packet fast enough 
+so that no queue has time to form.
+
+When we changed to CSMA on busses we got a larger queue at the server to G. This is probably due
+to the fact that we have the combined transmittions from G redirected from D, E and F which are 
+all heading to the server, which the return packets has to fight for space against. And since the
+busses are only half-duplex and can only send in one direction at a time there will be packet 
+collisions on that bus, which adds more and more packets at the server to G backlog for retransmittions.
+This is represented in the image below where the large packet streams are heading towards G and a bunch 
+of slower responses are heading back from the server which they have to fight for space against, which 
+leads to a backlog forming at G for the responses.
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{csmamap.png}
+  \caption{CSMA flow map}
+  \label{fig:csma}
+\end{figure}
 
 \section{Conclusions}
 
 \end{document}
 
-\end{document}
