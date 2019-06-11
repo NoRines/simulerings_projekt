@@ -143,10 +143,30 @@ Which concludes the section with the answers to the questions on part 2. The ave
 \end{itemize}
 
 \subsection{Implementation}
-We decided to use the ns3 discrete event network simulator.
+We decided to use the ns3 discrete event network simulator to implement and test the proposed scenario.
+
 
 
 \subsubsection{Network topology}
+
+\subsubsection{Server implementation}
+To get the desired behaviour where the server only replies to 70\% of messages and 30\% are sent to the router.
+We decided to implement our own version of the UdpEchoServerHelper and UdpEchoServer application.
+The new versions of theses classes were called MyUdpEchoServerHelper and MyUdpEchoServer.
+When implementing the behaviour first all code in UdpEchoServerHelper and UdpEchoServer was copied into MyUdpEchoServerHelper and MyUdpEchoServer respectively.
+We then modified the behaviour by adding the router address as a parameter into the helper class constructor.
+This address was stored in a private member variable called m\_routerAddress.
+This address needed to be sent to the MyUdpEchoServer application that the helper creates.
+So in the private install function of the helper class we use the object factory to create a pointer to a MyUdpEchoServer object then the router address is set in this object by calling a setter function.
+The application is then added to the node that the helper is installing.
+
+The modifications made to the MyUdpEchoServer class is first that two private member variables were added one for the router address called m\_routerAddress and one pointer for the uniform random variable called randVar.
+The router address is set by the helper using a setter function and the random variable is set in the class constructor using the create object function.
+To change the behaviour the only other function that needed modification was HandleRead.
+In this function we first generate a random variable using the uniform random variable.
+Then if the value is lager then 0.7 a bool is set to true.
+This bool variable decides if the message should go to the router or not.
+When the response packet is sent the bool variable is checked and the router address i applied if true and the sender address is applied if false.
 
 \subsubsection{Scheduling}
 
