@@ -4,6 +4,7 @@
 \usepackage{mathtools}
 \usepackage{graphicx}
 \usepackage{scrextend}
+\usepackage{amssymb}
 
 \title{DT057A Project}
 \author{raho1501 \& majo1412 \& mafl1400}
@@ -14,6 +15,39 @@
 \maketitle
 
 \section{Part I: PRNG and Random Variables} \label{part1}
+  \subsection{LCG - Linear Congruential Generator}
+    For this project we were tasked to create a LCG\footnote{Linear Congruential Generator}. 
+    A LCG uses a recurrence relation to create pseudo random uniformly distributed values, see equation \ref{recrel} for the relation used.
+    \begin{equation} \label{recrel}
+      X_{n+1} = (aX_{n} + c)\ mod\ m
+    \end{equation}
+    This equation was then implemented in C++, this is contained in a file called \href{https://github.com/NoRines/simulerings_projekt/blob/master/lcg.h}{\emph{lcg.h}}.
+    Using this LCG we were then tasked to test and compare it with 1000 values against the ns3::UniformRandomVariable generator. 
+    To test our implementation we were provided with these paramaters:
+    \begin{align*}
+      a=13 \\
+      m=100 \\
+      c=1 \\
+      seed=1
+    \end{align*}
+    We then used these same parameters in the ns3::UniformRandomVariable generator and stored the results.
+    We then compared the results from our implementation against the ns3::UniformRandomVariable generator and what we noticed is that our implementation is more cyclic\footnote{Constantly repeating.} than the NS3 implementation. 
+    Our implementation cycles every 20 values or so using the provided parameters.
+    With this in mind we then tried to find a set of parameters that gave us better results.
+    What we found out is that if $m$ is prime or $m$ is coprime against $a$ we would get a less cyclic generation, rather we would get as many values as possible between 0 and the value $m$.
+    So what we can conclude is that the LCG is reliant on the fact that
+    \begin{equation}
+      (p)\ mod\ n \neq 0,\ p = prime,\ n \in \mathbb{Z} ,\ n < p
+    \end{equation}
+    to generate a usable amount of primes.
+    What we can conclude from this is that it is enough for $a$ and $m$ to be coprime, as this will give the same results.
+    With this conclusion we can propose a good scheme to use while choosing parameters, and that scheme will use the fact that:
+    \begin{equation}
+      m = 2^{x}\ and\ a = 2y+1 \implies m\ and\ a\ is\ coprime
+    \end{equation}
+    
+  \subsection{ITM - Inverse Transform Method}
+
 \begin{enumerate}
   \item A LCG random generator was created in a file named "lcg.h" for generating random uniformed numbers. The file can be found in the git repo.
   \item 1000 values were generated and transformed onto the range [0,1] by calling the function "norm\_gen()" in the "lcg.h" header. A bulk function was also created if the 1000 values were in an array, then the GPU accelerated function "transformKernel(*input, mod, output,1000)" was called, which can be found in the header "func.cuh".
@@ -21,7 +55,7 @@
   \item The ns3 UniformRandomVariable does not seem to repeat and uses more values between 0 and 1. Using our implementation with the values seed=1, a=13, c=1 and m=100 creates a cycle with 20 values before repetition. Both are however uniformally distributed. Using a m that is a large prime would mean that we get as many values as possible between 0 and the large prime this is because p \% n != 0 for any prime p and value n < p. Howerer if a and p are coprime then this also results in a simmilar way to using primes as m. So if we want to make the modulo operation as effective as possible we can choose a m that is a power of 2. Then if we choose an odd value as a, a and m are coprime.
   \item Combined Multiple-Recursive Generator. The normal random variable in ns3 uses the polar form of the Box-Muller method which is a rejection sampeling method that aviods using trigometric functions. \url{https://en.wikipedia.org/wiki/Box\%E2\%80\%93Muller_transform}
   \item Our implementation is faster we get a time of 3.320s for ns3 it takes 3.806s. We tested with 10 million generated values. With 1 billion generated values our takes ~18.468s while ns3 takes ~1m 7.544s
-  \item Acording to the lectures we can use inverse cdf to function on the generated uniform random variable to create a random variable following the desired distriobution. For exponential distrobution we can use the function:$$ F^{-1}_x(u)) = \frac{-1}{\beta} * ln(1-u) \implies x \in \exp{(\lambda)} $$
+  \item Acording to the lectures we can use inverse cdf to function on the generated uniform random variable to create a random variable following the desired distriobution. For exponential distribution we can use the function:$$ F^{-1}_x(u) = \frac{-1}{\beta} * ln(1-u) \implies x \in \exp{(\lambda)} $$
   \item When comparing our implementation with the ns3 implementation we get quite simmilar distributions. However our implementation seems have a bit less variance than the ns3 version.
 \end{enumerate}
 
@@ -139,8 +173,26 @@ This bool variable decides if the message should go to the router or not.
 When the response packet is sent the bool variable is checked and the router address i applied if true and the sender address is applied if false.
 
 \subsubsection{Scheduling}
+To schedule sending events for the different sending node A, B, C and D the simulator function called ScheduleWithContext was used.
+This function takes a callback function that generates new data by first randomizing the packet size with an exponential random variable and then sending the packet.
+After the packet is sent a new call to the traffic generator function is scheduled using the simulator's ScheduleWithContext.
+The time to the next packet is set to follow an exponential random variable.
+This results in the nodes sending packets according to a Poisson process.
+This means that none of the sending nodes have any applications installed instead the sending behaviour is directly handled by the simulator.
+First we considered using an OnOffHelper to send packets where the off time was exponentially distributed but we could not find any way to make it use our random number generator.
+We also considered creating our own version of the UdpEchoClient application but this would be much more time consuming than just directly handling the packet sending with the simulator, which is what we decided to use.
 
 \subsubsection{Logging method}
+The type of data we wanted to be able to see when logging was the queue lengths for each connection and delay for each flow of data.
+We also used pcap to log the packets for some nodes for debugging purposes.
+
+To log the number of packets that were in each queue we used the simulator to schedule calls to a logging function.
+This function took as parameters the queue container that keeps the status for each queue as well as a file stream.
+The number of packets in each queue was then logged as comma separated values which made it very easy to take the outputted file and do analysis on it using python.
+
+To get information on the delay values of each flow of data we used the ns3 flow monitor tool to output an xml containing all the flow information.
+We could then read that file and see the total delay for all flows.
+This could then be used to calculate the average delay on a specific link.
 
 \subsection{Simulation}
 When simulating the final setup we compared it to the calculated expectations. For the average 
