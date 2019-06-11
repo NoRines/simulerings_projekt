@@ -49,6 +49,16 @@
     
   \subsection{ITM - Inverse Transform Method}
   \subsection{NS3 Normal Distribution Implementation}
+  In NS-3 they generate normal distrubuted values using a rejection method called Box-Muller. In NS-3 they generate normal random values by generating two uniform random values u1 and u2 on the range [0,1] and then:
+  $$v1 = 2 * u1 - 1$$
+  $$v2 = 2 * u2 - 1$$
+  $$w = v1^2 + v2^2$$
+  $$y = \sqrt{\frac{-2*log(w)}{w}}$$
+  $$x1 = mean + v1 * y * \sqrt{variance}$$
+  $$x2 = mean + v2 * y * \sqrt{variance}$$
+  $$Where\ x1,\ x2 \subseteq N(mean,variance).$$
+  
+  This polar method that NS-3 uses is a faster rejection method than many ordinary rejection methods, given that you can generate uniform random values at a fast rate while not using trigonometric function. 
   \subsection{Comparison of implementations and distributions}
   \subsection{Conclusions}
 
@@ -70,7 +80,12 @@
   \caption{Network topology}
   \label{fig:netmap}
 \end{figure}
-By inspecting the figure \ref{fig:netmap} we made a Kleinrock approximation to calculate the average number of packets in the system.
+By inspecting the figure \ref{fig:netmap} we made a Kleinrock approximation to calculate the average number of 
+packets in the system. Kleinrock independence approximation assumes that when you have a dense network of queues
+the effects of packet streams going into each other results in independent packet arrival-rates as the speed a packet traverses a line is only dependent on the availavble bandwidth of that line and how congested it is, then each
+queue can be observed as its own M/M/1 system and be observed isolated from each other. Which simplifies calculations
+for the whole system. However its still important to remember that it is still just an approximation and might not
+represent reality accuratly but there is proof that it is still a very good approximation that is worth doing. \cite{kenyon2002high}
 \begin{table}[h]
 \centering
 \label{Arrivalrates}
@@ -104,7 +119,8 @@ $\mu_{fg}$ & 10000 \\ \hline
 $\mu_{gs}$ & 12500 \\ \hline
 \end{tabular}
 \end{table}
-The values presented in the tables \ref{Arrivalrates} and \ref{departurerates} were then inserted into the formula below to calculate the number of packets on each link:
+The values presented in the tables \ref{Arrivalrates} and \ref{departurerates} were then inserted into the
+formula below to calculate the number of packets on each link:
 $$N_{ij} = \frac{\lambda_{ij}}{\mu_{ij} - \lambda_{ij} }$$
 With the values this becomes the equation-set 1 below:
 $$N_{ae} = \frac{\lambda_{ae}}{\mu_{ae} - \lambda_{ae} } \implies \frac{500}{6250 - 500 } = 0.0869565 $$
@@ -123,7 +139,8 @@ $$ \overline{N} = \sum N_{ij} = \frac{500}{6250 - 500 } + \frac{500}{6250 - 500 
 $$ \frac{1000}{6250 - 1000 } + \frac{2500}{10000 - 2500 } + \frac{4000}{12500 - 4000 } = 1.638898 packets $$ 
 
 
-Which concludes the section with the answers to the questions on part 2. The average number of packets are 1.638898 packets and the number of packets per link can be found in equations 1.
+Which concludes the section with the answers to the questions on part 2. The average number of packets are 1.638898
+packets and the number of packets per link can be found in equations 1.
 
 
 \section{Part III: Simulations and Results Comparison} \label{part3}
@@ -257,5 +274,6 @@ leads to a backlog forming at G for the responses.
 
 \section{Conclusions}
 
+\bibliographystyle{unsrt}
+\bibliography{ref}
 \end{document}
-
