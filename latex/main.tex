@@ -225,8 +225,26 @@ This bool variable decides if the message should go to the router or not.
 When the response packet is sent the bool variable is checked and the router address i applied if true and the sender address is applied if false.
 
 \subsubsection{Scheduling}
+To schedule sending events for the different sending node A, B, C and D the simulator function called ScheduleWithContext was used.
+This function takes a callback function that generates new data by first randomizing the packet size with an exponential random variable and then sending the packet.
+After the packet is sent a new call to the traffic generator function is scheduled using the simulator's ScheduleWithContext.
+The time to the next packet is set to follow an exponential random variable.
+This results in the nodes sending packets according to a Poisson process.
+This means that none of the sending nodes have any applications installed instead the sending behaviour is directly handled by the simulator.
+First we considered using an OnOffHelper to send packets where the off time was exponentially distributed but we could not find any way to make it use our random number generator.
+We also considered creating our own version of the UdpEchoClient application but this would be much more time consuming than just directly handling the packet sending with the simulator, which is what we decided to use.
 
 \subsubsection{Logging method}
+The type of data we wanted to be able to see when logging was the queue lengths for each connection and delay for each flow of data.
+We also used pcap to log the packets for some nodes for debugging purposes.
+
+To log the number of packets that were in each queue we used the simulator to schedule calls to a logging function.
+This function took as parameters the queue container that keeps the status for each queue as well as a file stream.
+The number of packets in each queue was then logged as comma separated values which made it very easy to take the outputted file and do analysis on it using python.
+
+To get information on the delay values of each flow of data we used the ns3 flow monitor tool to output an xml containing all the flow information.
+We could then read that file and see the total delay for all flows.
+This could then be used to calculate the average delay on a specific link.
 
 \subsection{Simulation}
 
