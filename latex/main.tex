@@ -14,6 +14,25 @@
 \maketitle
 
 \section{Part I: PRNG and Random Variables} \label{part1}
+  \subsection{LCG - Linear Congruential Generator}
+    For this project we were tasked to create a LCG\footnote{Linear Congruential Generator}. 
+    A LCG uses a recurrence relation to create pseudo random uniformly distributed values, see equation \ref{recrel} for the relation used.
+    \begin{equation} \label{recrel}
+      X_{n+1} = (aX_{n} + c)\ mod\ m
+    \end{equation}
+    We then implemented this code in C++ in a file called \href{https://github.com/NoRines/simulerings_projekt/blob/master/lcg.h}{\emph{lcg.h}}.
+    Using this LCG we were then tasked to test and compare it against the NS3 UniformRandomVariable generator. 
+    We were to generate 1000 different values using provided parameters and then compare the generated values against the NS3 implementation.
+    To test our implementation we were provided these paramaters:
+    \begin{align*}
+      a=13 \\
+      m=100 \\
+      c=1 \\
+      seed=1
+    \end{align*}
+    When we had ran our implementation of a uniform random number generator we then could 
+  \subsection{ITM - Inverse Transform Method}
+
 \begin{enumerate}
   \item A LCG random generator was created in a file named "lcg.h" for generating random uniformed numbers. The file can be found in the git repo.
   \item 1000 values were generated and transformed onto the range [0,1] by calling the function "norm\_gen()" in the "lcg.h" header. A bulk function was also created if the 1000 values were in an array, then the GPU accelerated function "transformKernel(*input, mod, output,1000)" was called, which can be found in the header "func.cuh".
