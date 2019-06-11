@@ -48,6 +48,17 @@
     \end{equation}
     
   \subsection{ITM - Inverse Transform Method}
+  The solution we used was presented in the lectures and is called the inverse transform method.
+  This can easily be implemented if the cumulative distribution function can be inverted.
+  This is because:
+  $$ F_{X}=Pr[X \leqslant x]=Pr[F(U) \leqslant x]=Pr[F^{-1}(F(U)) \leqslant F^{-1}(x)]= $$
+  $$ Pr[U \leqslant F^{-1}(x)]=F^{-1}(x)\ Assuming\ U \sim Unif[0,1] $$
+  This shows that if the inverse to the cumulative distribution function can be found then this function can be used to map an uniformly distributed value between 0 and 1 to follow the desired distribution.
+  
+  In the case of the exponential distribution the inverse can easily be found which is:
+  $$ F^{-1}(u)=-\beta * ln(1-u) $$
+  Since we are interested in the exponential distribution and we have the inverse to the cumulative distribution function the inverse transform method can very easily be implemented.
+  
   \subsection{NS3 Normal Distribution Implementation}
   \subsection{Comparison of implementations and distributions}
   \subsection{Conclusions}
