@@ -148,6 +148,28 @@ We decided to use the ns3 discrete event network simulator to implement and test
 
 
 \subsubsection{Network topology}
+Our network topology consisting of ns3-nodecontainers were interconnected using a point-to
+-point helper. The point-to-point helper was used to set the queue-type for all of the
+nodes in the network and set the type of queue for all of them. The resulting configuration
+for it was five Mbit/s links, two eight Mbit/s links and a ten Mbit/s link where all of
+them had a single-server, drop-tail queue. We assumed a infinite queue so this attribute
+didn't do much. 
+
+Following this we installed a internet-stack-helper to help with the stack, a
+trafic-control-helper to set the queueing discipline and a Ipv4-address-helper to give each
+node an ip. 
+
+Lastly we installed the server- and router-applications where the server was a modified
+udp-echo-server and the router was a packet-sink which would swallow all packets it
+received. 
+
+The topology for the csma version is very similar to the point-to-point version. The only
+difference is that the point-to-point-helper was changed to a csma-helper where it got the
+same bandwidth values and queue types as the previous version. However this change turned
+the channels into half-duplex channels instead of full-duplex as they were previously. This
+is due to that they now share a bus to transfer over and if both sides transmit at the same
+time, the packets will collide and be dropped.
+
 
 \subsubsection{Server implementation}
 To get the desired behaviour where the server only replies to 70\% of messages and 30\% are sent to the router.
