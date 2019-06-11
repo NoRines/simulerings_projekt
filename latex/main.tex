@@ -49,7 +49,7 @@ $\lambda_{eg}$ & $\lambda_{ae}$ & 500 \\ \hline
 $\lambda_{gs}$ & $\lambda_{fg} + \lambda_{dg} + \lambda_{eg}$ & 4000 \\ \hline
 \end{tabular}
 \end{table}
-After the arrival rates had been calculated the service rates were calculated.
+We then calculated the arrivalrate based on the interarrival times and present them in table \ref{Arrivalrates}. We then calculated the service rates which were based on the available bandwidth on the channel between each node. These were then presented in table \ref{departurerates}.
 \begin{table}[h]
 \centering
 \label{departurerates}
@@ -66,9 +66,9 @@ $\mu_{fg}$ & 10000 \\ \hline
 $\mu_{gs}$ & 12500 \\ \hline
 \end{tabular}
 \end{table}
-These were then used to calculate the average number of packets in each line according to the formula:
+The values presented in the tables \ref{Arrivalrates} and \ref{departurerates} were then inserted into the formula below to calculate the number of packets on each link:
 $$N_{ij} = \frac{\lambda_{ij}}{\mu_{ij} - \lambda_{ij} }$$
-Which when calculated using the aquired values becomes:
+With the values this becomes the equation-set 1 below:
 $$N_{ae} = \frac{\lambda_{ae}}{\mu_{ae} - \lambda_{ae} } \implies \frac{500}{6250 - 500 } = 0.0869565 $$
 $$N_{eg} = \frac{\lambda_{eg}}{\mu_{eg} - \lambda_{eg} } \implies \frac{500}{6250 - 500 } = 0.0869565 $$
 $$N_{bf} = \frac{\lambda_{bf}}{\mu_{bf} - \lambda_{bf} } \implies \frac{500}{6250 - 500 } = 0.0869565 $$
@@ -76,16 +76,16 @@ $$N_{cf} = \frac{\lambda_{cf}}{\mu_{cf} - \lambda_{cf} } \implies \frac{2000}{62
 $$N_{dg} = \frac{\lambda_{dg}}{\mu_{dg} - \lambda_{dg} } \implies \frac{1000}{6250 - 1000 } = 0.190476 $$
 $$N_{fg} = \frac{\lambda_{fg}}{\mu_{fg} - \lambda_{fg} } \implies \frac{2500}{10000 - 2500 } = 0.333333 $$
 $$N_{gs} = \frac{\lambda_{gs}}{\mu_{gs} - \lambda_{gs} } \implies \frac{4000}{12500 - 4000 } = 0.470588 $$
-$$Equations 1. Individual number of packets.$$
+$$Equations\ 1.\ Individual\ number\ of\ packets.$$
 
-Which then is used to calculate the average number of packets in the whole system using the formula:
+Later we used the formula below to calculate the average number of packets in the whole system:
 $$ \overline{N} = \sum N_{ij} $$
-Which gives us a number of:
+Which gave us the resulting equation-chain:
 $$ \overline{N} = \sum N_{ij} = \frac{500}{6250 - 500 } + \frac{500}{6250 - 500 } + \frac{500}{6250 - 500 } + \frac{2000}{6250 - 2000 } + $$ 
 $$ \frac{1000}{6250 - 1000 } + \frac{2500}{10000 - 2500 } + \frac{4000}{12500 - 4000 } = 1.638898 packets $$ 
 
 
-Which concludes the section with the answers to the questions. The average number of packets are 1.638898 packets and the number of packets per link can be found in equations 1.
+Which concludes the section with the answers to the questions on part 2. The average number of packets are 1.638898 packets and the number of packets per link can be found in equations 1.
 
 
 \section{Part III: Simulations and Results Comparison} \label{part3}
