@@ -4,6 +4,7 @@
 \usepackage{mathtools}
 \usepackage{graphicx}
 \usepackage{scrextend}
+\usepackage{amssymb}
 
 \title{DT057A Project}
 \author{raho1501 \& majo1412 \& mafl1400}
@@ -20,17 +21,31 @@
     \begin{equation} \label{recrel}
       X_{n+1} = (aX_{n} + c)\ mod\ m
     \end{equation}
-    We then implemented this code in C++ in a file called \href{https://github.com/NoRines/simulerings_projekt/blob/master/lcg.h}{\emph{lcg.h}}.
-    Using this LCG we were then tasked to test and compare it against the NS3 UniformRandomVariable generator. 
-    We were to generate 1000 different values using provided parameters and then compare the generated values against the NS3 implementation.
-    To test our implementation we were provided these paramaters:
+    This equation was then implemented in C++, this is contained in a file called \href{https://github.com/NoRines/simulerings_projekt/blob/master/lcg.h}{\emph{lcg.h}}.
+    Using this LCG we were then tasked to test and compare it with 1000 values against the ns3::UniformRandomVariable generator. 
+    To test our implementation we were provided with these paramaters:
     \begin{align*}
       a=13 \\
       m=100 \\
       c=1 \\
       seed=1
     \end{align*}
-    When we had ran our implementation of a uniform random number generator we then could 
+    We then used these same parameters in the ns3::UniformRandomVariable generator and stored the results.
+    We then compared the results from our implementation against the ns3::UniformRandomVariable generator and what we noticed is that our implementation is more cyclic\footnote{Constantly repeating.} than the NS3 implementation. 
+    Our implementation cycles every 20 values or so using the provided parameters.
+    With this in mind we then tried to find a set of parameters that gave us better results.
+    What we found out is that if $m$ is prime or $m$ is coprime against $a$ we would get a less cyclic generation, rather we would get as many values as possible between 0 and the value $m$.
+    So what we can conclude is that the LCG is reliant on the fact that
+    \begin{equation}
+      (p)\ mod\ n \neq 0,\ p = prime,\ n \in \mathbb{Z} ,\ n < p
+    \end{equation}
+    to generate a usable amount of primes.
+    What we can conclude from this is that it is enough for $a$ and $m$ to be coprime, as this will give the same results.
+    With this conclusion we can propose a good scheme to use while choosing parameters, and that scheme will use the fact that:
+    \begin{equation}
+      m = 2^{x}\ and\ a = 2y+1 \implies m\ and\ a\ is\ coprime
+    \end{equation}
+    
   \subsection{ITM - Inverse Transform Method}
 
 \begin{enumerate}
