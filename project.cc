@@ -55,6 +55,10 @@ int main(int argc, char** argv)
 	//LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO);
 	//LogComponentEnable("MyUdpEchoServerApplication", LOG_LEVEL_INFO);
 	
+	// Change these after every run...
+	RngSeedManager::SetSeed(3);
+	RngSeedManager::SetRun(7);
+	
 	double simTime = 6.0;
 
 	NodeContainer container;
