@@ -164,18 +164,19 @@ int main(int argc, char** argv)
 		Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
 		sourceA->Connect (InetSocketAddress (serverAddress, 9));
 	
-		//double mean = meanInterTime;
-		//Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
-		//randomTime->SetAttribute ("Mean", DoubleValue (mean));
+		double mean = meanInterTime;
+		Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
+		randomTime->SetAttribute ("Mean", DoubleValue (mean));
 	
-		//mean = meanSize;
-		//Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
-		//randomSize->SetAttribute ("Mean", DoubleValue (mean));
+		mean = meanSize;
+		Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
+		randomSize->SetAttribute ("Mean", DoubleValue (mean));
 		
-		lcg::state randomSize = {1, 22695477, 1, (unsigned int)(1 << 31)};
-		lcg::state randomTime = {300, 22695477, 1, (unsigned int)(1 << 31)};
+		//lcg::state randomSize = {1, 22695477, 1, (unsigned int)(1 << 31)};
+		//lcg::state randomTime = {300, 22695477, 1, (unsigned int)(1 << 31)};
 
-		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &MyGenerateTraffic, sourceA, randomSize, randomTime, meanInterTime);
+		//Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &MyGenerateTraffic, sourceA, randomSize, randomTime, meanInterTime);
+		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &GenerateTraffic, sourceA, randomSize, randomTime);
 	};
 	
 	DefThing(ncAtoE.Get(0), iGtoServer.GetAddress(1), 0.002, 70);
