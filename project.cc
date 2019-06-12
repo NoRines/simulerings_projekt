@@ -56,8 +56,8 @@ int main(int argc, char** argv)
 	//LogComponentEnable("MyUdpEchoServerApplication", LOG_LEVEL_INFO);
 	
 	// Change these after every run...
-	int seed1 = 13852;
-	int seed2 = 3159;
+	uint32_t seed1 = 13852;
+	uint32_t seed2 = 3159;
 	
 	RngSeedManager::SetSeed(seed1 % seed2);
 	RngSeedManager::SetRun(6546);
