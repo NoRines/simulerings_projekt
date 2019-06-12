@@ -56,8 +56,11 @@ int main(int argc, char** argv)
 	//LogComponentEnable("MyUdpEchoServerApplication", LOG_LEVEL_INFO);
 	
 	// Change these after every run...
-	RngSeedManager::SetSeed(3);
-	RngSeedManager::SetRun(7);
+	int seed1 = 151235;
+	int seed2 = 12525;
+	
+	RngSeedManager::SetSeed(seed1 % seed2);
+	RngSeedManager::SetRun(6546);
 	
 	double simTime = 6.0;
 
@@ -165,22 +168,22 @@ int main(int argc, char** argv)
 
 	auto DefThing = [&tid, starttime](Ptr<Node> node, Ipv4Address serverAddress, double meanInterTime, double meanSize)
 	{
-		Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
-		sourceA->Connect (InetSocketAddress (serverAddress, 9));
+		//Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
+		//sourceA->Connect (InetSocketAddress (serverAddress, 9));
 	
-		double mean = meanInterTime;
-		Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
-		randomTime->SetAttribute ("Mean", DoubleValue (mean));
+		//double mean = meanInterTime;
+		//Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
+		//randomTime->SetAttribute ("Mean", DoubleValue (mean));
 	
-		mean = meanSize;
-		Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
-		randomSize->SetAttribute ("Mean", DoubleValue (mean));
-		
-		//lcg::state randomSize = {1, 22695477, 1, (unsigned int)(1 << 31)};
-		//lcg::state randomTime = {300, 22695477, 1, (unsigned int)(1 << 31)};
+		//mean = meanSize;
+		//Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
+		//randomSize->SetAttribute ("Mean", DoubleValue (mean));
+		//
+		lcg::state randomSize = {seed1, 22695477, 1, (unsigned int)(1 << 31)};
+		lcg::state randomTime = {seed2, 22695477, 1, (unsigned int)(1 << 31)};
 
-		//Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &MyGenerateTraffic, sourceA, randomSize, randomTime, meanInterTime);
-		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &GenerateTraffic, sourceA, randomSize, randomTime);
+		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &MyGenerateTraffic, sourceA, randomSize, randomTime, meanInterTime);
+		//Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &GenerateTraffic, sourceA, randomSize, randomTime);
 	};
 	
 	DefThing(ncAtoE.Get(0), iGtoServer.GetAddress(1), 0.002, 70);
