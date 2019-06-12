@@ -56,8 +56,8 @@ int main(int argc, char** argv)
 	//LogComponentEnable("MyUdpEchoServerApplication", LOG_LEVEL_INFO);
 	
 	// Change these after every run...
-	int seed1 = 151235;
-	int seed2 = 12525;
+	int seed1 = 13852;
+	int seed2 = 3159;
 	
 	RngSeedManager::SetSeed(seed1 % seed2);
 	RngSeedManager::SetRun(6546);
@@ -166,10 +166,10 @@ int main(int argc, char** argv)
 	TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
 
 
-	auto DefThing = [&tid, starttime](Ptr<Node> node, Ipv4Address serverAddress, double meanInterTime, double meanSize)
+	auto DefThing = [&tid, starttime, seed1, seed2](Ptr<Node> node, Ipv4Address serverAddress, double meanInterTime, double meanSize)
 	{
-		//Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
-		//sourceA->Connect (InetSocketAddress (serverAddress, 9));
+		Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
+		sourceA->Connect (InetSocketAddress (serverAddress, 9));
 	
 		//double mean = meanInterTime;
 		//Ptr<ExponentialRandomVariable> randomTime = CreateObject<ExponentialRandomVariable> ();
