@@ -78,16 +78,13 @@
     \caption{NS3 RandomUniformVariable implementation.}
     \label{fig:ns3ruv}
   \end{figure}
-  This is the result of the NS3 uniform random variable generation, and what we can see in figure \ref{fig:ns3ruv} is we get a nice and uniformly distributed generation.
-  We get some variance, but that is to be expected.
+  
   \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{uniformLCG.png}
     \caption{LCG uniform random variable.}
     \label{fig:lcgruv}
   \end{figure}
-  Figure \ref{fig:lcgruv} shows the results from the LCG uniform random variable generation.
-  It is also nice and uniformally distributed. There is basically no difference at all, in these two distributions.
 \newpage
   \begin{figure}[h!]
     \centering
@@ -95,17 +92,27 @@
       \caption{NS3 RandomExponentialVariable implementation.}
       \label{fig:ns3rev}
   \end{figure}
-  Figure \ref{fig:ns3rev} shows the distribution achieved when we used the NS3 RandomExponentialValue.
-  It looks like it is exponentially distributed.
+  
   \begin{figure}[h!]
     \centering
       \includegraphics[width=\linewidth]{exponentialITM.png}
       \caption{ITM exponential random variable.}
       \label{fig:itmrev}
   \end{figure}
-  Figure \ref{fig:itmrev} shows the distribution achieved when we used ITM to get random exponential variables. 
-  There is a small difference here, our implementation has a steeper slope compared to the ns3 implementation.
+  which concludes the comparison of the figures.
   \subsection{Conclusions}
+
+\begin{enumerate}
+  \item A LCG random generator was created in a file named "lcg.h" for generating random uniformed numbers. The file can be found in the git repo.
+  \item 1000 values were generated and transformed onto the range [0,1] by calling the function "norm\_gen()" in the "lcg.h" header. A bulk function was also created if the 1000 values were in an array, then the GPU accelerated function "transformKernel(*input, mod, output,1000)" was called, which can be found in the header "func.cuh".
+  \item Our function was compared with the ns3 implementation and the result was that our implementation was worse. Ours were cyclic while the ns-3 wasn't as obviously-cyclic.
+  \item The ns3 UniformRandomVariable does not seem to repeat and uses more values between 0 and 1. Using our implementation with the values seed=1, a=13, c=1 and m=100 creates a cycle with 20 values before repetition. Both are however uniformally distributed. Using a m that is a large prime would mean that we get as many values as possible between 0 and the large prime this is because p \% n != 0 for any prime p and value n < p. Howerer if a and p are coprime then this also results in a simmilar way to using primes as m. So if we want to make the modulo operation as effective as possible we can choose a m that is a power of 2. Then if we choose an odd value as a, a and m are coprime.
+  \item Combined Multiple-Recursive Generator. The normal random variable in ns3 uses the polar form of the Box-Muller method which is a rejection sampeling method that aviods using trigometric functions. \url{https://en.wikipedia.org/wiki/Box\%E2\%80\%93Muller_transform}
+  \item Our implementation is faster we get a time of 3.320s for ns3 it takes 3.806s. We tested with 10 million generated values. With 1 billion generated values our takes ~18.468s while ns3 takes ~1m 7.544s
+  \item Acording to the lectures we can use inverse cdf to function on the generated uniform random variable to create a random variable following the desired distriobution. For exponential distribution we can use the function:$$ F^{-1}_x(u) = \frac{-1}{\beta} * ln(1-u) \implies x \in \exp{(\lambda)} $$
+  \item When comparing our implementation with the ns3 implementation we get quite simmilar distributions. However our implementation seems have a bit less variance than the ns3 version.
+\end{enumerate}
+
 
 \section{Part II: Mathematical Modelling of a system of Queues} \label{part2}
 \begin{figure}[h!]
@@ -226,6 +233,12 @@ Then if the value is larger then 0.7 a bool is set to true.
 This bool variable decides if the message should go to the router or not.
 When the response packet is sent the bool variable is checked and the router address i applied if true and the sender address is applied if false.
 
+We were able to place the two classes MyUdpEchoServer and MyUdpEchoHelper in a sub folder within our project directory.
+The reason to place the classes in a sub folder is because the waf program only checks for .cc files two folders deep in the scratch folder.
+To get the two class files to compile we needed to register the relative path for them in the src/application/model and src/application/helper folders.
+This could be done by editing the wscript file in the src/application folder.
+Then when rebuilding ns3 our classes appeared as regular application classes.
+
 \subsubsection{Scheduling}
 To schedule sending events for the different sending node A, B, C and D the simulator function called ScheduleWithContext was used.
 This function takes a callback function that generates new data by first randomizing the packet size with an exponential random variable and then sending the packet.
@@ -269,7 +282,8 @@ However the number of packets in queue at the server to G queue was huge.
 
 Finally we swaped the NS-3 random variables to our implemented versions. When we did this we
 barely noticed any difference. We almost got the same results as before except abit lower.
-The queue size form G to server was now 0.055 and the size was on F to G was now 0.150. 
+The queue size form G to server was now 0.055.
+The delay between F and G was now about 0.121 milliseconds.
 The Delay from F to G was unchanged, the delay from the server to A was 0.46 which is slightly 
 lower than before and from A to the server was now 0.48 . These are however within the bounds 
 of deviations so we can say that they are equal.
