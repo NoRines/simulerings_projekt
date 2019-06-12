@@ -46,7 +46,8 @@
     \begin{equation}
       m = 2^{x}\ and\ a = 2y+1 \implies m\ and\ a\ is\ coprime \\
     \end{equation}
-    
+    When we measured the time for both the ns3 and our implementation we found that our implementation were much faster.
+    ns3 took about 1 minute and 7 seconds to generate 1 billion numbers and our implementation took about 18 seconds.
   \subsection{ITM - Inverse Transform Method}
   The solution we used was presented in the lectures and is called the inverse transform method.
   This can easily be implemented if the cumulative distribution function can be inverted.
@@ -60,7 +61,7 @@
   Since we are interested in the exponential distribution and we have the inverse to the cumulative distribution function the inverse transform method can very easily be implemented.
   
   \subsection{NS3 Normal Distribution Implementation}
-  In NS-3 they generate normal distrubuted values using a rejection method called Box-Muller. In NS-3 they generate normal random values by generating two uniform random values u1 and u2 on the range [0,1] and then:
+  In NS-3 they generate normal distributed values using a rejection method called Box-Muller. In NS-3 they generate normal random values by generating two uniform random values u1 and u2 on the range [0,1] and then:
   $$v1 = 2 * u1 - 1$$
   $$v2 = 2 * u2 - 1$$
   $$w = v1^2 + v2^2$$
@@ -99,6 +100,7 @@
       \caption{ITM exponential random variable.}
       \label{fig:itmrev}
   \end{figure}
+<<<<<<< HEAD
   which concludes the comparison of the figures.
   \subsection{Conclusions}
 
@@ -114,6 +116,20 @@
 \end{enumerate}
 
 
+=======
+  Figure \ref{fig:itmrev} shows the distribution achieved when we used ITM to get random exponential variables. 
+  There is a small difference here, our implementation has a steeper slope compared to the ns3 implementation.
+  \newpage
+  \subsection{Conclusions}
+The conclusions from the part 1 of the paper is that we successfully implemented our own random number generator but we
+have to be careful choosing the attributes to the generator so that we dont get cycles early and avoid the zero-problem, 
+we proved that the Inverse Transform Method works mathematically and showed the ITM that we used for our generation 
+of exponential random values. We successfully uncovered how ns-3 gets its normal random numbers by the rejection method
+Box-Muller. Finally we compared our exponetial random generator to the one in ns-3. Our implementation gave a steeper
+slope in the plotted graph compared to the one in ns-3. This might be due to the difference in spread of the uniform
+random values. The difference in the plotted graphs for uniform random variables displays a similar shape with little to
+no difference.
+>>>>>>> e4b393e4e70966691de7fab89e73080e1246a4a2
 \section{Part II: Mathematical Modelling of a system of Queues} \label{part2}
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{netmap.png}
@@ -122,10 +138,10 @@
 \end{figure}
 By inspecting the figure \ref{fig:netmap} we made a Kleinrock approximation to calculate the average number of 
 packets in the system. Kleinrock independence approximation assumes that when you have a dense network of queues
-the effects of packet streams going into each other results in independent packet arrival-rates as the speed a packet traverses a line is only dependent on the availavble bandwidth of that line and how congested it is, then each
+the effects of packet streams going into each other results in independent packet arrival-rates as the speed a packet traverses a line is only dependent on the available bandwidth of that line and how congested it is, then each
 queue can be observed as its own M/M/1 system and be observed isolated from each other. Which simplifies calculations
 for the whole system. However its still important to remember that it is still just an approximation and might not
-represent reality accuratly but there is proof that it is still a very good approximation that is worth doing. \cite{kenyon2002high}
+represent reality accurately but there is proof that it is still a very good approximation that is worth doing. \cite{kenyon2002high}
 \begin{table}[h]
 \centering
 \label{Arrivalrates}
@@ -142,14 +158,14 @@ $\lambda_{eg}$ & $\lambda_{ae}$ & 500 \\ \hline
 $\lambda_{gs}$ & $\lambda_{fg} + \lambda_{dg} + \lambda_{eg}$ & 4000 \\ \hline
 \end{tabular}
 \end{table}
-We then calculated the arrivalrate based on the interarrival times and present them in table \ref{Arrivalrates}. We then calculated the service rates which were based on the available bandwidth on the channel between each node. These were then presented in table \ref{departurerates}.
+We then calculated the arrival-rate based on the inter-arrival times and present them in table \ref{Arrivalrates}. We then calculated the service-rates which were based on the available bandwidth on the channel between each node. These were then presented in table \ref{departurerates}.
 \begin{table}[h]
 \centering
 \label{departurerates}
-\caption{Departure rates}
+\caption{Departure-rates}
 \begin{tabular}{|l|l|}
 \hline
-$\mu_{ij}$ & Service rate(Packets/s)\\ \hline
+$\mu_{ij}$ & Service-rate(Packets/s)\\ \hline
 $\mu_{ae}$ & 6250 \\ \hline
 $\mu_{eg}$ & 6250 \\ \hline
 $\mu_{bf}$ & 6250 \\ \hline
@@ -199,7 +215,7 @@ them had a single-server, drop-tail queue. We assumed a infinite queue so this a
 didn't do much. 
 
 Following this we installed a internet-stack-helper to help with the stack, a
-trafic-control-helper to set the queueing discipline and a Ipv4-address-helper to give each
+trafic-control-helper to set the queuing discipline and a Ipv4-address-helper to give each
 node an ip. 
 
 Lastly we installed the server- and router-applications where the server was a modified
@@ -268,7 +284,7 @@ however the simulated result was around 0.064 packets which is significantly sma
 expected calculation deems. 
 
 The average queuing delay and total average delay for the packets traversing the link F to G 
-was aquired by creating a flow-monitor statistical analyser file. From that resulting XML-file 
+was acquired by creating a flow-monitor statistical analyser file. From that resulting XML-file 
 we calculated the delay by taking the delaysum for the flow. We used the total delay values for 
 the nodes that is presented just below.
 $$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number\ of\ packets}$$
@@ -277,7 +293,7 @@ When observing the delay between A and the server we got that it was around 0.45
 and the reversed path (server to A) was around 0.478 milliseconds. 
 
 Later we changed the point-to-point configuration to a CSMA-based one. This had change did not 
-have any significant effect on the data rate or the delay as the differences were negliable.
+have any significant effect on the data rate or the delay as the differences were negligible.
 However the number of packets in queue at the server to G queue was huge.
 
 Finally we swaped the NS-3 random variables to our implemented versions. When we did this we
@@ -290,7 +306,7 @@ of deviations so we can say that they are equal.
 
 
 \subsubsection{Evaluation}
-The difference in number of packets between G and the server is of a noticable size. We have 
+The difference in number of packets between G and the server is of a noticeable size. We have 
 two theories around why that is the case.
 
 \textbf{First} the calculations use the Kleinrock independence approximation which may not be 
@@ -306,10 +322,10 @@ results are 0.This is probably because the router is able to consume the packet 
 so that no queue has time to form.
 
 When we changed to CSMA on busses we got a larger queue at the server to G. This is probably due
-to the fact that we have the combined transmittions from G redirected from D, E and F which are 
+to the fact that we have the combined transmissions from G redirected from D, E and F which are 
 all heading to the server, which the return packets has to fight for space against. And since the
 busses are only half-duplex and can only send in one direction at a time there will be packet 
-collisions on that bus, which adds more and more packets at the server to G backlog for retransmittions.
+collisions on that bus, which adds more and more packets at the server to G backlog for re-transmissions.
 This is represented in the image below where the large packet streams are heading towards G and a bunch 
 of slower responses are heading back from the server which they have to fight for space against, which 
 leads to a backlog forming at G for the responses.
