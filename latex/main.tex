@@ -7,7 +7,7 @@
 \usepackage{amssymb}
 \usepackage{placeins}
 
-\title{DT057A Project}
+\title{DT057A Project A}
 \author{Rasmus Holm(raho1501),\\Marcus Johansson(majo1412) \&\\Markus Fält(mafl1400)}
 \date{June 2019}
 
@@ -391,47 +391,47 @@ Looking at figures \ref{fig:GtoServerNs3} and \ref{fig:GtoServerOur} we can see 
 In the case for the number of packets going from G to the server our implementation has more variance than the ns3 implemenation.
 This is probably because of the underlying random uniform generator used.
 We use an LCG while ns3 uses a Combined Multiple-Recursive Generator.
-LCG generators can exhaust their period in a few minutes on a regular computer [ref goes here] which is probably why we see a larger variance.
+LCG generators can exhaust their period in a few minutes on a regular computer \cite{l2002object} which is probably why we see a larger variance.
 Simply our random uniform generator is not as "uniform" as ns3's.
 
-\subsubsection{Old Discussion(Remove this)}
-The difference in number of packets between G and the server is of a noticeable size. We have 
-two theories around why that is the case.
+For the figures representing delays for A to the Server, Server to A and F to G we also see a slight increase in the variance for the runs using our random number generator.
+We suspect the same reasoning applies here as for the reasoning for the number of packets going from G to the server.
 
-\textbf{First} the calculations use the Kleinrock independence approximation which may not be 
-a good approximation for the system. This is because the system has quite low traffic while the 
-Kleinrock approximation works better for high traffic systems. We tested halving all the data 
-rates in the system and got results more close to the calculated values.
-
-\textbf{Second} the simulation might not take into account the packets that are in service 
-by only counting the packets that are in queue. This might be responsible for part of the 
-error since the Kleinrock approximation calculates the total number of packets in the point 
-to point connection. When measuring the average queue size between g and the router the 
-results are 0.This is probably because the router is able to consume the packet fast enough 
-so that no queue has time to form.
+\begin{figure}[!htbp]
+  \includegraphics[width=\linewidth]{csmamap.png}
+  \caption{CSMA flow map}
+  \label{fig:csma}
+\end{figure}
 
 When we changed to CSMA on busses we got a larger queue at the server to G. This is probably due
 to the fact that we have the combined transmissions from G redirected from D, E and F which are 
 all heading to the server, which the return packets has to fight for space against. And since the
 busses are only half-duplex and can only send in one direction at a time there will be packet 
 collisions on that bus, which adds more and more packets at the server to G backlog for re-transmissions.
-This is represented in the image below where the large packet streams are heading towards G and a bunch 
+This is represented in figure \ref{fig:csma} where the large packet streams are heading towards G and a bunch 
 of slower responses are heading back from the server which they have to fight for space against, which 
-leads to a backlog forming at G for the responses.
-\begin{figure}[h!]
-  \includegraphics[width=\linewidth]{csmamap.png}
-  \caption{CSMA flow map}
-  \label{fig:csma}
-\end{figure}
-\newpage
+leads to a queue forming at G for the responses.
+
 \subsection{Conclusions}
 The implementation of the network topology was quite straight forward especially since only point to point connections had to be used.
 The implementation of the server behaviour did however require a bit of research on our part.
 This was mainly because we used git as a version control tool and in the beginning we thought that our own class implementation files had to be put into the ns-3 source directory for it to be compiled.
 Eventually we found that by modifying some of the building script we could put the class files in our project directory.
-For scheduling the way we decided to implement it was good since we planed on replacing the random variables from ns-3's implementation to our own implementation.
-So working directly with the simulator scheduling functions was a good idea.
-When implementing we found it very useful to be able to log pcap files so that we could monitor the packet traffic for specific nodes.
+
+For scheduling the way we decided to implement it was good since we planed on replacing the random variables from ns-3's implementation to our own implementation, so working directly with the simulator scheduling functions made this easy.
+
+Even though our simulation did not fit perfectly with the Kleinrock approximation we still think the simulated results were close enough to the approximation for it to be useful.
+
+When building and testing our uniform random number generator we found it to much faster than the ns3 uniform random number generator.
+However this was never noticed in the simulation times.
+We did not bother to measure how the simulation time differed with the random number generators but we suspect there is no noticeable difference.
+This is because simulation time change was only noticeable when we increased the number of packets or the amount of time to simulate.
+
+\section{Project Feedback}
+The project was interesting as a chance to gain experience in network simulation as well as learning a tool as ns3.
+Since some of the project had freedom in how to interpret the instructions we would have found it useful to have these sections clearly marked.
+For example the csma busses, we interpreted that as replace the full-duplex point to point channels with half-duplex busses.
+Making it so the point to point version has a direct mapping to the csma version.
 
 \newpage
 \bibliographystyle{unsrt}
