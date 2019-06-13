@@ -395,6 +395,13 @@ The actual value is with 95\% confidence $0.123 \pm 0.00080$ milliseconds.
 The simulated value was obtained in the same way as the corresponding ns3 value.
 To get the results shown in figure \ref{fig:FGOur}, 400 simulations were done.
 
+\begin{figure}[!htbp]
+  \includegraphics[width=\linewidth]{queuecsma.png}
+  \caption{Queuelength at the server when using CSMA.}
+  \label{fig:csmaqueuelen}
+\end{figure}
+Figure \ref{fig:csmaqueuelen} shows the increasing queue length at the server when using busses and csma instead of point to point connections. The white line is the mean of 15 measurements and the black area around it is the standard deviation of these 15 measurements. It demonstrates the ever increasing queue-size as more and more packets become backlogged.
+
 \subsubsection{Evaluation}
 The difference in number of packets between G and the server is of a noticeable size. We have 
 two theories around why that is the case.
@@ -424,7 +431,7 @@ leads to a backlog forming at G for the responses.
   \caption{CSMA flow map}
   \label{fig:csma}
 \end{figure}
-
+\newpage
 \subsection{Conclusions}
 The implementation of the network topology was quite straight forward especially since only point to point connections had to be used.
 The implementation of the server behaviour did however require a bit of research on our part.
