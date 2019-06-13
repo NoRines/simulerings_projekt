@@ -36,13 +36,14 @@ static void GenerateTraffic (Ptr<Socket> socket, Ptr<ExponentialRandomVariable> 
 	Simulator::Schedule (pktInterval, &GenerateTraffic, socket, randomSize, randomTime); //Schedule next packet generation
 }
 
-static void MyGenerateTraffic (Ptr<Socket> socket, lcg::state& randomSize, lcg::state& randomTime, double interarivalTime)
+static void MyGenerateTraffic (Ptr<Socket> socket, lcg::state& randomState, double meanInterTime, double meanSize)
 {
-	uint32_t pktSize = (uint32_t)lcg::exp_transform(norm_gen(randomSize), 70);
+	uint32_t pktSize = (uint32_t)lcg::exp_transform(norm_gen(randomState), meanSize);
 	socket->Send (Create<Packet> (pktSize));
 
-	Time pktInterval = Seconds(lcg::exp_transform(norm_gen(randomTime), interarivalTime));
-	Simulator::Schedule (pktInterval, &MyGenerateTraffic, socket, randomSize, randomTime, interarivalTime); //Schedule next packet generation
+	Time pktInterval = Seconds(lcg::exp_transform(norm_gen(randomState), meanInterTime));
+
+	Simulator::Schedule(pktInterval, &MyGenerateTraffic, socket, randomState, meanInterTime, meanSize);
 }
 
 
@@ -56,11 +57,15 @@ int main(int argc, char** argv)
 	//LogComponentEnable("MyUdpEchoServerApplication", LOG_LEVEL_INFO);
 	
 	// Change these after every run...
-	uint32_t seed1 = 398574831;
-	uint32_t seed2 = 23598239;
+	uint32_t seed = 1;
+
+	CommandLine cmd;
+
+	cmd.AddValue("seed", "Seed for random number generator", seed);
+
+	cmd.Parse(argc, argv);
 	
-	RngSeedManager::SetSeed(seed1 % seed2);
-	RngSeedManager::SetRun(6546);
+	RngSeedManager::SetSeed(seed);
 	
 	double simTime = 6.0;
 
@@ -109,13 +114,13 @@ int main(int argc, char** argv)
 	qdiscs.Add(tch.Install(dcGtoServer));
 
 	AsciiTraceHelper asciiTraceHelper;
-	Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("all_queues.tr");
+	Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("rundata/our/"+std::to_string(seed)+".tr");
 
 	*stream->GetStream() << "time," << "AfromE," << "EfromA," << "EfromG," << "GfromE,"
 		<< "BfromF," << "FfromB," << "CfromF," << "FfromC," << "DfromG," << "GfromD,"
 		<< "FfromG," << "GfromF," << "GfromRouter," << "RouterFromG," << "GfromServer," << "ServerFromG" << std::endl;
 
-	for(float t = 1.0f; t < simTime; t+=0.00001f)
+	for(float t = 1.0f; t < simTime; t+=0.001f)
 	{
 		Simulator::Schedule(Seconds(t), &TcPacketsInQueue, qdiscs, stream);
 	}
@@ -166,7 +171,7 @@ int main(int argc, char** argv)
 	TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
 
 
-	auto DefThing = [&tid, starttime, seed1, seed2](Ptr<Node> node, Ipv4Address serverAddress, double meanInterTime, double meanSize)
+	auto DefThing = [&tid, starttime, seed](Ptr<Node> node, Ipv4Address serverAddress, double meanInterTime, double meanSize)
 	{
 		Ptr<Socket> sourceA = Socket::CreateSocket(node, tid);
 		sourceA->Connect (InetSocketAddress (serverAddress, 9));
@@ -178,11 +183,10 @@ int main(int argc, char** argv)
 		//mean = meanSize;
 		//Ptr<ExponentialRandomVariable> randomSize = CreateObject<ExponentialRandomVariable> ();
 		//randomSize->SetAttribute ("Mean", DoubleValue (mean));
-		//
-		lcg::state randomSize = {seed1, 22695477, 1, (unsigned int)(1 << 31)};
-		lcg::state randomTime = {seed2, 22695477, 1, (unsigned int)(1 << 31)};
+		
+		lcg::state randomState = {seed, 22695477, 1, (unsigned int)(1 << 31)};
 
-		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &MyGenerateTraffic, sourceA, randomSize, randomTime, meanInterTime);
+		Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &MyGenerateTraffic, sourceA, randomState, meanInterTime, meanSize);
 		//Simulator::ScheduleWithContext (sourceA->GetNode()->GetId(), Seconds (starttime), &GenerateTraffic, sourceA, randomSize, randomTime);
 	};
 	
@@ -197,14 +201,14 @@ int main(int argc, char** argv)
 	//Ptr<FlowMonitor> monitor = flowmon.InstallAll();
 	Ptr<FlowMonitor> monitor = flowmon.Install(container);
 
-	p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
-	p2p.EnablePcap("proj_server", dcGtoServer.Get(1), true);
-	p2p.EnablePcap("proj_f", dcFtoG.Get(0), true);
-	p2p.EnablePcap("proj_g", dcFtoG.Get(1), true);
+	//p2p.EnablePcap("proj_router", dcGtoRouter.Get(1), true);
+	//p2p.EnablePcap("proj_server", dcGtoServer.Get(1), true);
+	//p2p.EnablePcap("proj_f", dcFtoG.Get(0), true);
+	//p2p.EnablePcap("proj_g", dcFtoG.Get(1), true);
 	Simulator::Stop(Seconds(simTime));
 	Simulator::Run();
 
-	flowmon.SerializeToXmlFile("flowfilestatscool.xml", false, true);
+	flowmon.SerializeToXmlFile("rundata/our/" + std::to_string(seed) + ".xml", false, true);
 
 	Simulator::Destroy();
 

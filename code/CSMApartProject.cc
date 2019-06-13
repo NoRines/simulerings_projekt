@@ -46,8 +46,8 @@ int main(int argc, char** argv)
 	//LogComponentEnable("MyUdpEchoServerApplication", LOG_LEVEL_INFO);
 	
 	// Ändra dessa i varje run
-	RngSeedManager::SetSeed(25626);
-	RngSeedManager::SetRun(6546);
+	RngSeedManager::SetSeed(4684);
+	RngSeedManager::SetRun(30536);
 	
 	double simTime = 31.0;
 

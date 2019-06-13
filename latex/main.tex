@@ -320,7 +320,14 @@ leads to a backlog forming at G for the responses.
   \label{fig:csma}
 \end{figure}
 
-\section{Conclusions}
+\subsection{Conclusions}
+The implementation of the network topology was quite straight forward especially since only point to point connections had to be used.
+The implementation of the server behaviour did however require a bit of research on our part.
+This was mainly because we used git as a version control tool and in the beginning we thought that our own class implementation files had to be put into the ns3 source directory for it to be compiled.
+Eventually we found that by modifying some of the building script we could put the class files in our project directory.
+For scheduling the way we decided to implement it was good since we planed on replacing the random variables from ns3's implementation to our own implementation.
+So working directly with the simulator scheduling functions was a good idea.
+When implementing we found it very useful to be able to log pcap files so that we could monitor the packet traffic for specific nodes.
 
 \bibliographystyle{unsrt}
 \bibliography{ref}
