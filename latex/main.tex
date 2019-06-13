@@ -266,33 +266,9 @@ We could then read that file and see the total delay for all flows.
 This could then be used to calculate the average delay on a specific link.
 
 \subsection{Simulation}
-When simulating the final setup we compared it to the calculated expectations. For the average 
-number of packets between node G and the server was calculated to be around 0.47 packets, 
-however the simulated result was around 0.064 packets which is significantly smaller than the 
-expected calculation deems. 
+The simulations were performed using the implementation discussed above.
+The results are presented below.
 
-The average queuing delay and total average delay for the packets traversing the link F to G 
-was acquired by creating a flow-monitor statistical analyser file. From that resulting XML-file 
-we calculated the delay by taking the delaysum for the flow. We used the total delay values for 
-the nodes that is presented just below.
-$$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number\ of\ packets}$$
-Which resulted with the delay from F to G to be about 0.123 milliseconds.  
-When observing the delay between A and the server we got that it was around 0.454 milliseconds 
-and the reversed path (server to A) was around 0.478 milliseconds. 
-
-Later we changed the point-to-point configuration to a CSMA-based one. This had change did not 
-have any significant effect on the data rate or the delay as the differences were negligible.
-However the number of packets in queue at the server to G queue was huge.
-
-Finally we swapped the NS-3 random variables to our implemented versions. When we did this we
-barely noticed any difference. We almost got the same results as before except abit lower.
-The queue size form G to server was now 0.055.
-The delay between F and G was now about 0.121 milliseconds.
-The Delay from F to G was unchanged, the delay from the server to A was 0.46 which is slightly 
-lower than before and from A to the server was now 0.48 . These are however within the bounds 
-of deviations so we can say that they are equal.
-
-\newpage
 \subsubsection{Results}
 \begin{figure}[!htbp]
     \centering
