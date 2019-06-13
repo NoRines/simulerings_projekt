@@ -14,7 +14,9 @@
 \begin{document}
 
 \maketitle
-
+\newpage
+\tableofcontents
+\newpage
 \section{Part I: PRNG and Random Variables} \label{part1}
   \subsection{LCG - Linear Congruential Generator}
     For this project we were tasked to create a LCG\footnote{Linear Congruential Generator}. 
@@ -23,7 +25,7 @@
       X_{n+1} = (aX_{n} + c)\ mod\ m
     \end{equation}
     This equation was then implemented in C++, this is contained in a file called \href{https://github.com/NoRines/simulerings_projekt/blob/master/lcg.h}{\emph{lcg.h}}.
-    Using this LCG we were then tasked to generate 1000 values and then test our implementation against the ns-3::UniformRandomVariable generator. 
+    Using this LCG we were then tasked to generate 1000 values and then test our implementation against the ns-3::UniformRandomVariable generator, which uses the Combined Multiple-Recursive Generator MRG32k3a \cite{l2002object}. 
     To test our implementation we were provided with these paramaters:
     \begin{align*}
       a=13 \\
@@ -51,7 +53,7 @@
     The ns-3 implementation took about 1 minute and 7 seconds to generate 1 billion numbers and our implementation took about 18 seconds.
   \subsection{ITM - Inverse Transform Method}
   The solution we used was presented in the lectures and is called the inverse transform method.
-  This can easily be implemented if the cumulative distribution function can be inverted.
+  This can easily be implemented if the cumulative distribution function can be inverted \cite{itm}.
   This is because:
   $$ F_{X}=Pr[X \leqslant x]=Pr[F(U) \leqslant x]=Pr[F^{-1}(F(U)) \leqslant F^{-1}(x)]= $$
   $$ Pr[U \leqslant F^{-1}(x)]=F^{-1}(x)\ Assuming\ U \sim Unif[0,1] $$
@@ -62,7 +64,7 @@
   Since we are interested in the exponential distribution and we have the inverse to the cumulative distribution function the inverse transform method can very easily be implemented.
   
   \subsection{ns-3 Normal Distribution Implementation}
-  In NS-3 they generate normal distributed values using a rejection method called Box-Muller. In NS-3 they generate normal random values by generating two uniform random values u1 and u2 on the range [0,1] and then use these to generate normal values by following the equations below:
+  In NS-3 they generate normal distributed values using a rejection method called Box-Muller \cite{bm}. In NS-3  they generate normal random values by generating two uniform random values u1 and u2 on the range [0,1] and then use these to generate normal values by following the equations below \cite{ns3norm}:
   $$v1 = 2 * u1 - 1$$
   $$v2 = 2 * u2 - 1$$
   $$w = v1^2 + v2^2$$
@@ -71,7 +73,7 @@
   $$x2 = mean + v2 * y * \sqrt{variance}$$
   $$Where\ x1,\ x2 \subseteq N(mean,variance).$$
   
-  This polar method that NS-3 uses is a faster rejection method than many ordinary rejection methods, given that you can generate uniform random values at a fast rate while not using trigonometric function. 
+  This polar method that NS-3 uses is a faster rejection method than many ordinary rejection methods, given that you can generate uniform random values at a fast rate while not using trigonometric function \cite{bm}. 
   \subsection{Comparison of implementations and distributions}
   The figures below are the result of the ns-3 generation and our generation.
   \begin{figure}[h!]
@@ -431,6 +433,7 @@ For scheduling the way we decided to implement it was good since we planed on re
 So working directly with the simulator scheduling functions was a good idea.
 When implementing we found it very useful to be able to log pcap files so that we could monitor the packet traffic for specific nodes.
 
+\newpage
 \bibliographystyle{unsrt}
 \bibliography{ref}
 \end{document}
