@@ -7,7 +7,7 @@
 \usepackage{amssymb}
 
 \title{DT057A Project}
-\author{raho1501 \& majo1412 \& mafl1400}
+\author{Rasmus Holm(raho1501),\\Marcus Johansson(majo1412) \&\\Markus Fält(mafl1400)}
 \date{June 2019}
 
 \begin{document}
@@ -289,6 +289,107 @@ The Delay from F to G was unchanged, the delay from the server to A was 0.46 whi
 lower than before and from A to the server was now 0.48 . These are however within the bounds 
 of deviations so we can say that they are equal.
 
+\subsubsection{Results}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{ns3_gs_queue_size.png}
+    \caption{The number of packets from g to the server using ns3's random number implementation.}
+    \label{fig:GtoServerNs3}
+\end{figure}
+
+Figure \ref{fig:GtoServerNs3} shows the average number of packets in queue from g to the server when using ns3's random number implementation.
+The actual value is with 95\% confidence $0.549 \pm 0.00115$.
+The value was simulated by sampling the queue sizes at different times and taking the average value from that.
+Then to get the average number of packets under service in the server we took the total delay for all flows going from the server through g and divided that by the total running time.
+To get the result shown in figure \ref{fig:GtoServerNs3}, 400 simulations were done.
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{our_gs_queue_size.png}
+    \caption{The number of packets from g to the server using our random number implementation.}
+    \label{fig:GtoServerOur}
+\end{figure}
+
+Figure \ref{fig:GtoServerOur} shows the average number of packets in queue from g to the server when using our random number implementation.
+The actual value is with 95\% confidence $0.547 \pm 0.001680$.
+The value was simulated in the same way as for the ns3 results the only difference was the random number generator used.
+To get the results shown in figure \ref{fig:GtoServerOur}, 400 simulations were done.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{ns3_as_delay.png}
+    \caption{The average delay for packets going from a to the server using the ns3 random number implementation.}
+    \label{fig:AtoServerNs3}
+\end{figure}
+
+Figure \ref{fig:AtoServerNs3} shows the average delay for packets going from A to the server when using the ns3 random number implementation.
+The actual value is with 95\% confidence $0.454 \pm 0.00426$ milliseconds.
+The value was simulated by checking the total delay of the A to server flow and dividing that by the number of packets traversing that flow.
+To get the results shown in figure \ref{fig:AtoServerNs3}, 400 simulations were done.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{ns3_sa_delay.png}
+    \caption{The average delay for packets going from the server to A using the ns3 random number implementation.}
+    \label{fig:ServerToANs3}
+\end{figure}
+
+Figure \ref{fig:ServerToANs3} shows the average delay for packets going from the server to A when using the ns3 random number implementation.
+The actual value is with 95\% confidence $0.477 \pm 0.00582$ milliseconds.
+The simulated value was obtained in the same way as the simulated value from A to the server.
+To get the results shown in figure \ref{fig:ServerToANs3}, 400 simulations were done.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{our_as_delay.png}
+    \caption{The average delay for packets going from A to the server using our random number implementation.}
+    \label{fig:AtoServerOur}
+\end{figure}
+
+Figure \ref{fig:AtoServerOur} shows the average delay for packets going from A to the server when using our random number implementation.
+The actual value is with 95\% confidence $0.490 \pm 0.00476$ milliseconds.
+The simulated value was obtained in the same way as the corresponding ns3 value.
+To get the results shown in figure \ref{fig:AtoServerOur}, 400 simulations were done.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{our_sa_delay.png}
+    \caption{The average delay for packets going from the server to A using our random number implementation.}
+    \label{fig:ServerToAOur}
+\end{figure}
+
+Figure \ref{fig:ServerToAOur} shows the average delay for packets going from the server to A when using our random number implementation.
+The actual value is with 95\% confidence $0.472 \pm 0.005130$ milliseconds.
+The simulated value was obtained in the same way as the corresponding ns3 value.
+To get the results shown in figure \ref{fig:ServerToAOur}, 400 simulations were done.
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{ns3_fg_delay.png}
+    \caption{The average delay for packets going from F to G when using the ns3 random number implementation.}
+    \label{fig:FGNs3}
+\end{figure}
+
+Figure \ref{fig:FGNs3} shows the average delay for packets going from F to G when using the ns3 random number implementation.
+The actual value is with 95\% confidence $0.123 \pm 0.00073$ milliseconds.
+The simulated value was obtained by measuring the delay for B and C flows to G and then subtracting the delay for B and C to F.
+This gives the total delay for that connection, so to get the average delay the total value is divided by the number of packets.
+$$\frac{((b \rightarrow g) - (b \rightarrow f)) + ((c \rightarrow g) - (c \rightarrow f))}{number\ of\ packets}$$
+To get the results shown in figure \ref{fig:FGNs3}, 400 simulations were done.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{our_fg_delay.png}
+    \caption{The average delay for packets going from F to G when using our random number implementation.}
+    \label{fig:FGOur}
+\end{figure}
+
+Figure \ref{fig:FGOur} shows the average delay for packets going from F to G when using our random number implementation.
+The actual value is with 95\% confidence $0.123 \pm 0.00080$ milliseconds.
+The simulated value was obtained in the same way as the corresponding ns3 value.
+To get the results shown in figure \ref{fig:FGOur}, 400 simulations were done.
 
 \subsubsection{Evaluation}
 The difference in number of packets between G and the server is of a noticeable size. We have 
