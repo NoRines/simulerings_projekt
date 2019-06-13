@@ -268,6 +268,8 @@ This could then be used to calculate the average delay on a specific link.
 \subsection{Simulation}
 The simulations were performed using the implementation discussed above.
 The results are presented below.
+The simulations were performed with a bash script that was calling the waf program with different random seeds for every run.
+The data from the simulations were analysed using Python for parsing the data and calculating values.
 
 \subsubsection{Results}
 \begin{figure}[!htbp]
@@ -378,7 +380,19 @@ To get the results shown in figure \ref{fig:FGOur}, 400 simulations were done.
 \end{figure}
 Figure \ref{fig:csmaqueuelen} shows the increasing queue length at the server when using busses and csma instead of point to point connections. The white line is the mean of 15 measurements and the black area around it is the standard deviation of these 15 measurements. It demonstrates the ever increasing queue-size as more and more packets become backlogged.
 
-\subsubsection{Evaluation}
+\subsubsection{Discussion}
+When comparing the number of packets calculated from the Kleinrock approximation from section \ref{part2} and the simulated values there is some difference.
+For both of the ns3 random number generator runs and the runs using our random number generator the approximated value lies outside of the confidence interval of 95\%.
+We think this may be due to overhead in the simulation or it might be due to the Kleinrock approximation not being a good fit for this particular system.
+
+Looking at figures \ref{fig:GtoServerNs3} and \ref{fig:GtoServerOur} we can see the difference between our and ns3's random number implementation.
+In the case for the number of packets going from G to the server our implementation has more variance than the ns3 implemenation.
+This is probably because of the underlying random uniform generator used.
+We use an LCG while ns3 uses a Combined Multiple-Recursive Generator.
+LCG generators can exhaust their period in a few minutes on a regular computer [ref goes here] which is probably why we see a larger variance.
+Simply our random uniform generator is not as "uniform" as ns3's.
+
+\subsubsection{Old Discussion(Remove this)}
 The difference in number of packets between G and the server is of a noticeable size. We have 
 two theories around why that is the case.
 
