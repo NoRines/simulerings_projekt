@@ -22,7 +22,7 @@
       X_{n+1} = (aX_{n} + c)\ mod\ m
     \end{equation}
     This equation was then implemented in C++, this is contained in a file called \href{https://github.com/NoRines/simulerings_projekt/blob/master/lcg.h}{\emph{lcg.h}}.
-    Using this LCG we were then tasked to generate 1000 values and then test our implementation against the ns3::UniformRandomVariable generator. 
+    Using this LCG we were then tasked to generate 1000 values and then test our implementation against the ns-3::UniformRandomVariable generator. 
     To test our implementation we were provided with these paramaters:
     \begin{align*}
       a=13 \\
@@ -31,8 +31,8 @@
       seed=1
     \end{align*}
     With these parameters we then generated the 1000 values, and stored the results.
-    We then used these same parameters in the ns3::UniformRandomVariable generator, and stored the results.
-    We then compared the results from our implementation against the ns3::UniformRandomVariable generator and what we noticed is that our implementation is more cyclic\footnote{Constantly repeating.} than the NS3 implementation. 
+    We then used these same parameters in the ns-3::UniformRandomVariable generator, and stored the results.
+    We then compared the results from our implementation against the ns-3::UniformRandomVariable generator and what we noticed is that our implementation is more cyclic\footnote{Constantly repeating.} than the ns-3 implementation. 
     Where our implementation cycles every 20 values or so using the provided parameters.
     With this in mind we then tried to find a set of parameters that gave us better results.
     What we found out is that if $m$ is prime or $m$ is coprime against $a$ we would get a less cyclic generation, rather we would get as many values as possible between 0 and the value $m$.
@@ -46,8 +46,8 @@
     \begin{equation}
       m = 2^{x}\ and\ a = 2y+1 \implies m\ and\ a\ is\ coprime \\
     \end{equation}
-    When we measured the time for both the ns3 and our implementation we found that our implementation were much faster.
-    ns3 took about 1 minute and 7 seconds to generate 1 billion numbers and our implementation took about 18 seconds.
+    When we measured the time for both the ns-3 and our implementation we found that our implementation were much faster.
+    The ns-3 implementation took about 1 minute and 7 seconds to generate 1 billion numbers and our implementation took about 18 seconds.
   \subsection{ITM - Inverse Transform Method}
   The solution we used was presented in the lectures and is called the inverse transform method.
   This can easily be implemented if the cumulative distribution function can be inverted.
@@ -60,8 +60,8 @@
   $$ F^{-1}(u)=-\beta * ln(1-u) $$
   Since we are interested in the exponential distribution and we have the inverse to the cumulative distribution function the inverse transform method can very easily be implemented.
   
-  \subsection{NS3 Normal Distribution Implementation}
-  In NS-3 they generate normal distributed values using a rejection method called Box-Muller. In NS-3 they generate normal random values by generating two uniform random values u1 and u2 on the range [0,1] and then:
+  \subsection{ns-3 Normal Distribution Implementation}
+  In NS-3 they generate normal distributed values using a rejection method called Box-Muller. In NS-3 they generate normal random values by generating two uniform random values u1 and u2 on the range [0,1] and then use these to generate normal values by following the equations below:
   $$v1 = 2 * u1 - 1$$
   $$v2 = 2 * u2 - 1$$
   $$w = v1^2 + v2^2$$
@@ -72,12 +72,12 @@
   
   This polar method that NS-3 uses is a faster rejection method than many ordinary rejection methods, given that you can generate uniform random values at a fast rate while not using trigonometric function. 
   \subsection{Comparison of implementations and distributions}
-  The figures below are the result of the ns3 generation and our generation.
+  The figures below are the result of the ns-3 generation and our generation.
   \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{ns3uniform.png}
-    \caption{NS3 RandomUniformVariable implementation.}
-    \label{fig:ns3ruv}
+    \caption{ns3 RandomUniformVariable implementation.}
+    \label{fig:ns-3ruv}
   \end{figure}
   
   \begin{figure}[h!]
@@ -86,30 +86,31 @@
     \caption{LCG uniform random variable.}
     \label{fig:lcgruv}
   \end{figure}
-\newpage
+
   \begin{figure}[h!]
     \centering
       \includegraphics[width=\linewidth]{ns3exponential.png}
-      \caption{NS3 RandomExponentialVariable implementation.}
-      \label{fig:ns3rev}
+      \caption{ns-3 RandomExponentialVariable implementation.}
+      \label{fig:ns-3rev}
   \end{figure}
-  
+
   \begin{figure}[h!]
     \centering
       \includegraphics[width=\linewidth]{exponentialITM.png}
       \caption{ITM exponential random variable.}
       \label{fig:itmrev}
   \end{figure}
-
-  Figure \ref{fig:itmrev} shows the distribution achieved when we used ITM to get random exponential variables. 
-  There is a small difference here, our implementation has a steeper slope compared to the ns3 implementation.
+  \newpage
+  
+  Figure \ref{fig:itmrev} below shows the distribution achieved when we used ITM to get random exponential variables. 
+  There is a small difference here, our implementation has a steeper slope compared to the ns-3 implementation.
   \newpage
   \subsection{Conclusions}
 The conclusions from the part 1 of the paper is that we successfully implemented our own random number generator but we
-have to be careful choosing the attributes to the generator so that we dont get cycles early and avoid the zero-problem, 
+have to be careful choosing the attributes to the generator so that we don't get cycles early and avoid the zero-problem, 
 we proved that the Inverse Transform Method works mathematically and showed the ITM that we used for our generation 
 of exponential random values. We successfully uncovered how ns-3 gets its normal random numbers by the rejection method
-Box-Muller. Finally we compared our exponetial random generator to the one in ns-3. Our implementation gave a steeper
+Box-Muller. Finally we compared our exponential random generator to the one in ns-3. Our implementation gave a steeper
 slope in the plotted graph compared to the one in ns-3. This might be due to the difference in spread of the uniform
 random values. The difference in the plotted graphs for uniform random variables displays a similar shape with little to
 no difference.
@@ -187,12 +188,12 @@ packets and the number of packets per link can be found in equations 1.
 \section{Part III: Simulations and Results Comparison} \label{part3}
 
 \subsection{Implementation}
-We decided to use the ns3 discrete event network simulator to implement and test the proposed scenario.
+We decided to use the ns-3 discrete event network simulator to implement and test the proposed scenario.
 
 
 
 \subsubsection{Network topology}
-Our network topology consisting of ns3-nodecontainers were interconnected using a point-to
+Our network topology consisting of ns-3-nodecontainers were interconnected using a point-to
 -point helper. The point-to-point helper was used to set the queue-type for all of the
 nodes in the network and set the type of queue for all of them. The resulting configuration
 for it was five Mbit/s links, two eight Mbit/s links and a ten Mbit/s link where all of
@@ -204,7 +205,7 @@ trafic-control-helper to set the queuing discipline and a Ipv4-address-helper to
 node an ip. 
 
 Lastly we installed the server- and router-applications where the server was a modified
-udp-echo-server and the router was a packet-sink which would swallow all packets it
+udp-echo-server and the router was a packet-sink which would discard all packets it
 received. 
 
 The topology for the csma version is very similar to the point-to-point version. The only
@@ -226,7 +227,8 @@ This address needed to be sent to the MyUdpEchoServer application that the helpe
 So in the private install function of the helper class we use the object factory to create a pointer to a MyUdpEchoServer object then the router address is set in this object by calling a setter function.
 The application is then added to the node that the helper is installing.
 
-The modifications made to the MyUdpEchoServer class is first that two private member variables were added one for the router address called m\_routerAddress and one pointer for the uniform random variable called randVar.
+The modifications made to the MyUdpEchoServer class is first that two private member variables were added one for the
+router address called m\_routerAddress and one pointer for the uniform random variable called randVar.
 The router address is set by the helper using a setter function and the random variable is set in the class constructor using the create object function.
 To change the behaviour the only other function that needed modification was HandleRead.
 In this function we first generate a random variable using the uniform random variable.
@@ -238,7 +240,7 @@ We were able to place the two classes MyUdpEchoServer and MyUdpEchoHelper in a s
 The reason to place the classes in a sub folder is because the waf program only checks for .cc files two folders deep in the scratch folder.
 To get the two class files to compile we needed to register the relative path for them in the src/application/model and src/application/helper folders.
 This could be done by editing the wscript file in the src/application folder.
-Then when rebuilding ns3 our classes appeared as regular application classes.
+Then when rebuilding ns-3 our classes appeared as regular application classes.
 
 \subsubsection{Scheduling}
 To schedule sending events for the different sending node A, B, C and D the simulator function called ScheduleWithContext was used.
@@ -258,7 +260,7 @@ To log the number of packets that were in each queue we used the simulator to sc
 This function took as parameters the queue container that keeps the status for each queue as well as a file stream.
 The number of packets in each queue was then logged as comma separated values which made it very easy to take the outputted file and do analysis on it using python.
 
-To get information on the delay values of each flow of data we used the ns3 flow monitor tool to output an xml containing all the flow information.
+To get information on the delay values of each flow of data we used the ns-3 flow monitor tool to output an XML containing all the flow information.
 We could then read that file and see the total delay for all flows.
 This could then be used to calculate the average delay on a specific link.
 
@@ -281,7 +283,7 @@ Later we changed the point-to-point configuration to a CSMA-based one. This had 
 have any significant effect on the data rate or the delay as the differences were negligible.
 However the number of packets in queue at the server to G queue was huge.
 
-Finally we swaped the NS-3 random variables to our implemented versions. When we did this we
+Finally we swapped the NS-3 random variables to our implemented versions. When we did this we
 barely noticed any difference. We almost got the same results as before except abit lower.
 The queue size form G to server was now 0.055.
 The delay between F and G was now about 0.121 milliseconds.
@@ -323,9 +325,9 @@ leads to a backlog forming at G for the responses.
 \subsection{Conclusions}
 The implementation of the network topology was quite straight forward especially since only point to point connections had to be used.
 The implementation of the server behaviour did however require a bit of research on our part.
-This was mainly because we used git as a version control tool and in the beginning we thought that our own class implementation files had to be put into the ns3 source directory for it to be compiled.
+This was mainly because we used git as a version control tool and in the beginning we thought that our own class implementation files had to be put into the ns-3 source directory for it to be compiled.
 Eventually we found that by modifying some of the building script we could put the class files in our project directory.
-For scheduling the way we decided to implement it was good since we planed on replacing the random variables from ns3's implementation to our own implementation.
+For scheduling the way we decided to implement it was good since we planed on replacing the random variables from ns-3's implementation to our own implementation.
 So working directly with the simulator scheduling functions was a good idea.
 When implementing we found it very useful to be able to log pcap files so that we could monitor the packet traffic for specific nodes.
 
